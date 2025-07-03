@@ -1,4 +1,4 @@
-# Git Commit Helper with Gemini AI
+# Git Commit Helper con Gemini AI
 
 Uno strumento CLI per generare messaggi di commit perfetti usando l'AI di Gemini, direttamente dal tuo terminale.
 
@@ -13,12 +13,12 @@ Uno strumento CLI per generare messaggi di commit perfetti usando l'AI di Gemini
 ### Installa globalmente
 
 ```bash
-npm install -g git-commit-helper
+npm install -g git-commit-helper-it
 ```
 
 ## Utilizzo nella tua repository
 
-1. Nella root del tuo progetto, crea una configurazione locale (opzionale):
+Nella root del tuo progetto, crea una configurazione locale (opzionale):
 
 ```bash
 echo '{
@@ -26,16 +26,6 @@ echo '{
   "defaultCommitType": "feat",
   "maxSubjectLength": 50
 }' > ./gch.config.json
-```
-
-2. Nella cartella globale:
-
-```bash
-echo '{
-  "geminiApiKey": "la-tua-api-key",
-  "defaultCommitType": "feat",
-  "maxSubjectLength": 50
-}' > C:/Users/<username>/.git-commit-helper/gch.config.json
 ```
 
 ## Uso
