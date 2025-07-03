@@ -1,0 +1,33 @@
+{
+  "name": "git-commit-helper",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Generatore automatico di messaggi di commit con Gemini AI",
+  "bin": {
+    "git-commit-helper": "./bin/git-commit-helper.js",
+    "gch": "./bin/git-commit-helper.js",
+    "gch-init": "./bin/init-config.js"
+  },
+  "scripts": {
+    "postinstall": "node ./bin/setup.js",
+    "dev": "node ./src/index.js"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "execa": "^7.1.1",
+    "inquirer": "^12.7.0",
+    "node-fetch": "^3.3.2"
+  },
+  "keywords": [
+    "git",
+    "commit",
+    "gemini",
+    "ai",
+    "automation"
+  ],
+  "author": "Il tuo Nome",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
