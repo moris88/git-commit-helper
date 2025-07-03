@@ -37,12 +37,18 @@ function loadConfig() {
   );
 }
 
+// score di review minimo
+const MIN_REVIEW_SCORE = 7;
+
+// Configurazione predefinita
+const MIN_TOKEN_LENGTH = 3000;
+
 // Esempio di uso
 const config = loadConfig();
 
 if (!config.geminiApiKey) {
   console.error(
-    chalk.red("API key non configurata."),
+    chalk.red("ERRORE: Chiave API key non configurata."),
   );
   process.exit(1);
 }
@@ -57,13 +63,83 @@ const COMMIT_TYPES = [
   { name: "perf", description: "Miglioramento delle prestazioni" },
   { name: "test", description: "Aggiunta o modifica di test" },
   { name: "chore", description: "Attività di manutenzione" },
+  { name: "BREAKING CHANGE", description: "Modifica che rompe la compatibilità" },
 ];
 
-async function generateCommitMessage() {
-  try {
-    // Ottieni le differenze staged
-    const diff = execSync("git diff --cached").toString();
+async function askGeminiForReview(diff) {
+  const reviewPrompt = `ANALISI CODICE - ISTRUZIONI STRETTE
 
+***Obiettivo:*** 
+Valutare le modifiche con un voto da 1 a 10 (${MIN_REVIEW_SCORE}+ = sufficiente) e fornire feedback strutturato.
+
+***Regole di risposta:***
+1. Rispondi SOLO in formato testo semplice (NO markdown/codice)
+2. Usa elenchi puntati per chiarezza
+3. Termina con "Score: X/10" (X = voto numerico)
+
+***Parametri di valutazione:***
+• Qualità: 
+  - Leggibilità (naming, formattazione)
+  - Struttura (logica, organizzazione)
+  - Stile (consistenza, best practices)
+
+• Correttezza:
+  - Funzionalità raggiunte
+  - Bug risolti (se applicabile)
+  - Edge cases considerati
+
+• Manutenibilità:
+  - Modularità
+  - Testabilità 
+  - Documentazione implicita
+
+• Problemi critici:
+  - Errori evidenti
+  - Vulnerabilità
+  - Anti-pattern
+
+***Formato richiesto:***
+1. Qualità: <feedback conciso>
+2. Correttezza: <feedback conciso> 
+3. Manutenibilità: <feedback conciso>
+4. Problemi: <lista problemi o "Nessuno">
+
+Score: X/10
+
+***Diff da analizzare:***
+${diff.substring(0, MIN_TOKEN_LENGTH)}
+
+***Nota importante:*** 
+Se il diff è vuoto o irrilevante, rispondi con:
+1. Qualità: Nessuna modifica rilevante
+2. Correttezza: Nessuna modifica rilevante
+3. Manutenibilità: Nessuna modifica rilevante 
+4. Problemi: Diff non analizzabile
+Score: 0/10`;
+
+  try {
+    const result = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent?key=${config.geminiApiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: reviewPrompt }] }],
+        }),
+      }
+    );
+    const response = await result.json();
+    return response?.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
+  } catch (error) {
+    console.error(
+      chalk.yellow("⚠ Errore durante la review Gemini:"),
+      error.message
+    );
+    return null;
+  }
+}
+
+async function askGeminiForGeneratedCommitMessage(diff) {
     if (!diff) {
       console.log(chalk.yellow("Nessuna modifica staged per il commit"));
       process.exit(1);
@@ -81,7 +157,7 @@ async function generateCommitMessage() {
     );
 
     // 2. Integrazione con commit convenzionali
-    const { commitType, isBreakingChange } = await inquirer.prompt([
+    const { commitType } = await inquirer.prompt([
       {
         type: "list",
         name: "commitType",
@@ -95,88 +171,185 @@ async function generateCommitMessage() {
           name: `${type.name.padEnd(8)} - ${type.description}`,
           value: type.name,
         })),
-      },
-      {
-        type: "confirm",
-        name: "isBreakingChange",
-        message: "Contiene cambiamenti che rompono la compatibilità?",
-        default: false,
-      },
+      }
     ]);
 
     // Genera prompt per Gemini
-    const prompt = `Genera un messaggio di commit seguendo le Conventional Commits per queste modifiche:
-Tipo: ${commitType}
-${isBreakingChange ? "BREAKING CHANGE: si" : ""}
+    const prompt = `Genera UN SOLO messaggio di commit seguendo STRETTAMENTE queste regole:
 
-Regole:
-- Riga soggetto: massimo ${config.maxSubjectLength} caratteri
-- Usa il formato: <tipo>(<ambito>): <descrizione>
-- Descrizione concisa all'infinito
-- Corpo opzionale dopo riga vuota (se necessario)
-- Footer per breaking changes (se presenti)
+REGOLE OBBLIGATORIE:
+1. Formato: <tipo>(<ambito>)?: <descrizione>
+2. Lunghezza TOTALE MASSIMA: 50 caratteri (controlla prima di rispondere)
+3. Lingua: inglese
+4. Struttura:
+   - Tipo: ${commitType}
+   - Ambito opzionale (solo se strettamente necessario)
+   - ": " (due punti + spazio)
+   - Descrizione concisa in inglese
 
-Diff: ${diff.substring(0, 3000)}`;
-    console.log(chalk.blue("Prompt inviato a Gemini"));
-    console.log(chalk.blue("Attendo la risposta..."));
-    const result = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent?key=${config.geminiApiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
-            },
-          ],
-        }),
+ESEMPI VALIDI (<=50 caratteri):
+- feat(auth): add login endpoint
+- fix: resolve header overflow
+- docs: update api examples
+
+ESEMPI NON VALIDI:
+- "feat: add new login system with email validation" (troppo lungo)
+- "fix: bug" (troppo vago)
+
+RICHIESTA:
+Analizza questo diff e genera SOLO il messaggio di commit (senza commenti aggiuntivi) che:
+1. Segua ESATTAMENTE il formato sopra
+2. Sia <=50 caratteri
+3. Descriva CONCISAMENTE le modifiche
+
+Diff: ${diff.substring(0, MIN_TOKEN_LENGTH)}`;
+    console.log(chalk.blue("📥​ Prompt inviato a Gemini"));
+    console.log(chalk.blue("⌛​ Attendi qualche secondo per la risposta..."));
+    try {
+      const result = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent?key=${config.geminiApiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: prompt,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+      const response = await result.json();
+      return response?.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
+    } catch (error) {
+      console.error(
+        chalk.yellow("⚠️​ Errore durante la review Gemini:"),
+        error.message
+      );
+      return null;
+    }
+}
+
+function validateMessage(msg)  {
+  const subject = msg.trim(); // Trim per sicurezza
+
+  console.log(chalk.blue(`Messaggio di commit generato => ${subject}`));
+
+  // Verifica lunghezza soggetto
+  if (subject.length > config.maxSubjectLength) {
+    console.log(chalk.red(`La riga soggetto supera ${config.maxSubjectLength} caratteri (${subject.length})`));
+    return false;
+  }
+
+  const commitType = COMMIT_TYPES.map((type) => type.name).find(
+    (type) => type === subject.split(":")[0].trim()
+  );
+
+  console.log(chalk.blue(`Tipo di commit selezionato: ${commitType}`));
+
+  // Regex migliorata (gestisce più spazi dopo : e controlla meglio gli scope)
+  const commitRegex = new RegExp(`^${commitType}(?:\\([^)]+\\))?:\\s+.+`);
+
+  if (!commitRegex.test(subject)) {
+    console.log(chalk.red("Formato Conventional Commit non valido. Esempio: 'feat: descrizione' o 'feat(scope): descrizione'"));
+    return false;
+  }
+
+  return true;
+}
+
+async function main() {
+  try {
+    // Ottieni le differenze staged
+    const diff = execSync("git diff --cached").toString();
+
+    // 1. Richiesta di review del codice
+    const { wantReview } = await inquirer.prompt({
+      type: "confirm",
+      name: "wantReview",
+      message: "Vuoi una review del codice da Gemini prima di procedere?",
+      default: true,
+    });
+    
+    if (wantReview) {
+      console.log(chalk.blue("\n🔍 Analisi del codice in corso..."));
+      const review = await askGeminiForReview(diff);
+
+      if (review === null) {
+        console.log(chalk.yellow("⚠️​ Impossibile ottenere una review"));
+        process.exit(1);
+      } 
+      console.log(chalk.blue("\n🔍 Review ricevuta:"), review);
+      const score = review.match(/Score:\s*(\d+)\/10/i);
+      if (!score) {
+        console.log(
+          chalk.yellow(`⚠️​ Review non contiene un punteggio valido, ${score}`)
+        );
+        process.exit(1);
       }
-    );
-    const response = await result.json();
-    console.log(chalk.blue("Risposta da Gemini: "), response);
-    let commitMessage = response.candidates[0].content.parts[0].text;
+      const scoreValue = parseInt(score[1], 10);
+      if (scoreValue < MIN_REVIEW_SCORE) {
+        console.log(
+          chalk.red(
+            `\n❌ Review score: ${scoreValue}/10 - Modifiche non sufficienti`
+          )
+        );
+        const { proceedAnyway } = await inquirer.prompt({
+          type: "confirm",
+          name: "proceedAnyway",
+          message: "Vuoi procedere comunque?",
+          default: false,
+        });
+        if (!proceedAnyway) process.exit(1);
+      } else {
+        console.log(
+          chalk.green(
+            `\n✅ Review score: ${scoreValue}/10 - Modifiche approvate da Gemini!`
+          )
+        );
+      }
+    }
+
+    let msgGemini = await askGeminiForGeneratedCommitMessage(diff);
+    if (msgGemini === null) {
+      console.log(
+        chalk.yellow("⚠️​ Impossibile generare il messaggio di commit")
+      );
+      process.exit(1);
+    }
+    let commitMessage = msgGemini.replace(/```/g, "").replace(/\n/g, "");
 
     // 3. Controllo della lunghezza del messaggio
-    const validateMessage = (msg) => {
-      const lines = msg.split("\n");
-      const subject = lines[0].trim(); // Trim per sicurezza
-
-      // Verifica lunghezza soggetto
-      if (subject.length > config.maxSubjectLength) {
-        return `La riga soggetto supera ${config.maxSubjectLength} caratteri (${subject.length})`;
-      }
-
-      // Regex migliorata (gestisce più spazi dopo : e controlla meglio gli scope)
-      const commitRegex = new RegExp(
-        `^${commitType}(?:\\([^)]+\\))?:\\s+.+`,
-        "s" // Flag 's' per gestire eventuali . che includono newline
-      );
-
-      if (!commitRegex.test(subject)) {
-        return "Formato Conventional Commit non valido. Esempio: 'feat: descrizione' o 'feat(scope): descrizione'";
-      }
-
-      return true;
-    };
-
-    // Aggiungi BREAKING CHANGE se necessario
-    if (isBreakingChange && !commitMessage.includes("BREAKING CHANGE:")) {
-      commitMessage += "\n\nBREAKING CHANGE: ";
-      const { breakingChangeDesc } = await inquirer.prompt([
-        {
+    const validationResult = validateMessage(
+      commitMessage
+    );
+    if (!validationResult) {
+      console.error(chalk.red(`❌ Errore di validazione`));
+      const { fixMessage } = await inquirer.prompt({
+        type: "confirm",
+        name: "fixMessage",
+        message: "Vuoi modificare il messaggio di commit?",
+        default: true,
+      });
+      if (fixMessage) {
+        const { newMessage } = await inquirer.prompt({
           type: "input",
-          name: "breakingChangeDesc",
-          message: "Descrivi il breaking change:",
-        },
-      ]);
-      commitMessage += breakingChangeDesc;
+          name: "newMessage",
+          message: "Inserisci il nuovo messaggio di commit:",
+          default: msg,
+        });
+        msg = newMessage;
+      } else {
+        console.log(chalk.yellow("❌ Commit annullato"));
+        process.exit(1);
+      }
     }
 
     // Mostra anteprima e chiedi conferma
@@ -191,16 +364,16 @@ Diff: ${diff.substring(0, 3000)}`;
         name: "confirm",
         message: "Procedere con il commit?",
         default: true,
-      },
+      }
     ]);
 
     if (confirm) {
       execSync(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`, {
         stdio: "inherit",
       });
-      console.log(chalk.green("✔ Commit creato con successo!"));
+      console.log(chalk.green("✔️​ Commit creato con successo!"));
     } else {
-      console.log(chalk.yellow("✖ Commit annullato"));
+      console.log(chalk.yellow("❌ Commit annullato"));
     }
   } catch (error) {
     console.error(chalk.red("Errore:"), error.message);
@@ -208,4 +381,4 @@ Diff: ${diff.substring(0, 3000)}`;
   }
 }
 
-generateCommitMessage();
+main()
