@@ -9,6 +9,8 @@ import fetch from "node-fetch";
 
 // Configurazione
 function loadConfig() {
+  console.log(chalk.blue("🔧 Caricamento configurazione..."));
+
   // 1. Cerca nella repository corrente
   const localConfigPath = resolve(
     process.cwd(),
@@ -23,12 +25,12 @@ function loadConfig() {
   );
 
   if (existsSync(localConfigPath)) {
-    console.log("Usando configurazione locale del progetto");
+    console.log("Sto usando configurazione locale del progetto");
     return JSON.parse(readFileSync(localConfigPath, "utf-8"));
   }
 
   if (existsSync(globalConfigPath)) {
-    console.log("Usando configurazione globale");
+    console.log("Sto usando configurazione globale");
     return JSON.parse(readFileSync(globalConfigPath, "utf-8"));
   }
 
@@ -268,7 +270,31 @@ function validateMessage(msg)  {
 async function main() {
   try {
     // Ottieni le differenze staged
-    const diff = execSync("git diff --cached").toString();
+    let diff = execSync("git diff --cached").toString();
+
+    if (!diff) {
+      console.log(chalk.yellow("Nessuna modifica staged per il commit"));
+
+      const { confirmAdd } = await inquirer.prompt([
+        {
+          type: "confirm",
+          name: "confirmAdd",
+          message: "Procedere con il 'git add .'?",
+          default: true,
+        },
+      ]);
+
+      if (confirmAdd) {
+        execSync(`git add .`, {
+          stdio: "inherit",
+        });
+        console.log(chalk.green("✔️​ Add eseguito con successo!"));
+        diff = execSync("git diff --cached").toString();
+      } else {
+        console.log(chalk.yellow("❌ Add annullato"));
+        process.exit(0);
+      }
+    }
 
     // 1. Richiesta di review del codice
     const { wantReview } = await inquirer.prompt({
@@ -358,22 +384,42 @@ async function main() {
     console.log(chalk.cyan(commitMessage));
     console.log(chalk.cyan("---"));
 
-    const { confirm } = await inquirer.prompt([
+    const { confirmCommit } = await inquirer.prompt([
       {
         type: "confirm",
-        name: "confirm",
+        name: "confirmCommit",
         message: "Procedere con il commit?",
         default: true,
-      }
+      },
     ]);
 
-    if (confirm) {
+    if (confirmCommit) {
       execSync(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`, {
         stdio: "inherit",
       });
       console.log(chalk.green("✔️​ Commit creato con successo!"));
     } else {
       console.log(chalk.yellow("❌ Commit annullato"));
+      process.exit(0);
+    }
+
+    const { confirmPush } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "confirmPush",
+        message: "Procedere con il push?",
+        default: true,
+      },
+    ]);
+
+    if (confirmPush) {
+      execSync(`git push`, {
+        stdio: "inherit",
+      });
+      console.log(chalk.green("✔️​ Push eseguito con successo!"));
+    } else {
+      console.log(chalk.yellow("❌ Push annullato"));
+      process.exit(0);
     }
   } catch (error) {
     console.error(chalk.red("Errore:"), error.message);
