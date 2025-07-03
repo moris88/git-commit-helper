@@ -11,31 +11,19 @@ import fetch from "node-fetch";
 function loadConfig() {
   console.log(chalk.blue("🔧 Caricamento configurazione..."));
 
-  // 1. Cerca nella repository corrente
+  // Cerca nella repository corrente
   const localConfigPath = resolve(
     process.cwd(),
-    ".git-commit-helper",
-    "gch.config.json"
-  );
-  // 2. Cerca nella home dell'utente (fallback)
-  const globalConfigPath = join(
-    homedir(),
-    ".git-commit-helper",
     "gch.config.json"
   );
 
   if (existsSync(localConfigPath)) {
-    console.log("Sto usando configurazione locale del progetto");
+    console.log("Sto usando configurazione del progetto");
     return JSON.parse(readFileSync(localConfigPath, "utf-8"));
   }
 
-  if (existsSync(globalConfigPath)) {
-    console.log("Sto usando configurazione globale");
-    return JSON.parse(readFileSync(globalConfigPath, "utf-8"));
-  }
-
   throw new Error(
-    "File di configurazione non trovato. Crea .git-commit-helper/config.json nella tua repository o nella home globale dell'utente."
+    "File di configurazione non trovato. Crea gch.config.json nella tua repository."
   );
 }
 
@@ -268,6 +256,7 @@ function validateMessage(msg)  {
 }
 
 async function main() {
+  console.log(chalk.blue("🔧 Git Commit Helper CLI => ctrl+c: exit"));
   try {
     // Ottieni le differenze staged
     let diff = execSync("git diff --cached").toString();

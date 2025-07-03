@@ -21,17 +21,40 @@ npm install -g git-commit-helper
 1. Nella root del tuo progetto, crea una configurazione locale (opzionale):
 
 ```bash
-mkdir .git-commit-helper
 echo '{
   "geminiApiKey": "la-tua-api-key",
   "defaultCommitType": "feat",
   "maxSubjectLength": 50
-}' > .git-commit-helper/gch.config.json
+}' > ./gch.config.json
 ```
 
-2. Usa normalmente:
+2. Nella cartella globale:
 
 ```bash
-git add .
+echo '{
+  "geminiApiKey": "la-tua-api-key",
+  "defaultCommitType": "feat",
+  "maxSubjectLength": 50
+}' > C:/Users/<username>/.git-commit-helper/gch.config.json
+```
+
+## Uso
+
+```bash
 gch
+```
+
+## Pubblicazione NPM
+
+Per pubblicare il pacchetto su NPM, assicurati di avere un account NPM e di essere autenticato. Poi esegui:
+
+```bash
+npm login
+npm publish --access public
+```
+
+Per pubblicare in locale solo per testare:
+
+```bash
+npm link
 ```

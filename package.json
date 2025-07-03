@@ -4,12 +4,17 @@
   "type": "module",
   "description": "Generatore automatico di messaggi di commit con Gemini AI",
   "bin": {
-    "git-commit-helper": "./bin/git-commit-helper.js",
-    "gch": "./bin/git-commit-helper.js",
-    "gch-init": "./bin/init-config.js"
+    "git-commit-helper": "./bin/git-commit-helper.cjs",
+    "gch": "./bin/git-commit-helper.cjs",
+    "gch-init": "./bin/init-config.cjs"
   },
+  "files": [
+    "bin",
+    "src"
+  ],
   "scripts": {
-    "postinstall": "node ./bin/setup.js",
+    "init": "node ./bin/init-config.cjs",
+    "setup": "node ./bin/setup.cjs",
     "dev": "node ./src/index.js"
   },
   "dependencies": {
@@ -25,9 +30,13 @@
     "ai",
     "automation"
   ],
-  "author": "Il tuo Nome",
+  "author": {
+    "name": "Maurizio Tolomeo",
+    "email": "maurizio.tolomeo@outlook.it",
+    "url": "https://github.com/moris88"
+  },
   "license": "MIT",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   }
 }
