@@ -110,16 +110,17 @@ Tipo: ${commitType}
 ${isBreakingChange ? "BREAKING CHANGE: si" : ""}
 
 Regole:
-- Riga soggetto: massimo ${maxSubjectLength} caratteri
+- Riga soggetto: massimo ${config.maxSubjectLength} caratteri
 - Usa il formato: <tipo>(<ambito>): <descrizione>
 - Descrizione concisa all'infinito
 - Corpo opzionale dopo riga vuota (se necessario)
 - Footer per breaking changes (se presenti)
 
 Diff: ${diff.substring(0, 3000)}`;
-
+    console.log(chalk.blue("Prompt inviato a Gemini"));
+    console.log(chalk.blue("Attendo la risposta..."));
     const result = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent?key=${config.geminiApiKey}`,
       {
         method: "POST",
         headers: {
@@ -138,43 +139,32 @@ Diff: ${diff.substring(0, 3000)}`;
         }),
       }
     );
-    const response = await result.response;
-    let commitMessage = response.text();
+    const response = await result.json();
+    console.log(chalk.blue("Risposta da Gemini: "), response);
+    let commitMessage = response.candidates[0].content.parts[0].text;
 
     // 3. Controllo della lunghezza del messaggio
     const validateMessage = (msg) => {
       const lines = msg.split("\n");
-      const subject = lines[0];
+      const subject = lines[0].trim(); // Trim per sicurezza
 
+      // Verifica lunghezza soggetto
       if (subject.length > config.maxSubjectLength) {
         return `La riga soggetto supera ${config.maxSubjectLength} caratteri (${subject.length})`;
       }
 
-      if (!subject.match(new RegExp(`^${commitType}(\(.+\))?:.+`))) {
-        return "Formato Conventional Commit non valido";
+      // Regex migliorata (gestisce più spazi dopo : e controlla meglio gli scope)
+      const commitRegex = new RegExp(
+        `^${commitType}(?:\\([^)]+\\))?:\\s+.+`,
+        "s" // Flag 's' per gestire eventuali . che includono newline
+      );
+
+      if (!commitRegex.test(subject)) {
+        return "Formato Conventional Commit non valido. Esempio: 'feat: descrizione' o 'feat(scope): descrizione'";
       }
 
       return true;
     };
-
-    let validation = validateMessage(commitMessage);
-    while (validation !== true) {
-      console.log(chalk.red(`Problema nel messaggio: ${validation}`));
-
-      const { modifiedMessage } = await inquirer.prompt([
-        {
-          type: "input",
-          name: "modifiedMessage",
-          message: "Correggi il messaggio:",
-          default: commitMessage,
-          validate: (input) =>
-            validateMessage(input) === true || validateMessage(input),
-        },
-      ]);
-
-      commitMessage = modifiedMessage;
-      validation = validateMessage(commitMessage);
-    }
 
     // Aggiungi BREAKING CHANGE se necessario
     if (isBreakingChange && !commitMessage.includes("BREAKING CHANGE:")) {
