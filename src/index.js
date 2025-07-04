@@ -1,62 +1,74 @@
 #!/usr/bin/env node
-import { execSync } from "child_process";
-import inquirer from "inquirer";
-import chalk from "chalk";
-import { resolve, join } from "path";
-import { homedir } from "os";
-import { existsSync, readFileSync } from "fs";
-import fetch from "node-fetch";
+import { execSync } from 'child_process'
+import inquirer from 'inquirer'
+import chalk from 'chalk'
+import { resolve } from 'path'
+import { existsSync, readFileSync } from 'fs'
+import figlet from 'figlet'
+import fetch from 'node-fetch'
 
 // Configurazione
 function loadConfig() {
-  console.log(chalk.blue("🔧 Caricamento configurazione..."));
-
   // Cerca nella repository corrente
-  const localConfigPath = resolve(
-    process.cwd(),
-    "gch.config.json"
-  );
+  const localConfigPath = resolve(process.cwd(), 'gch.config.json')
 
   if (existsSync(localConfigPath)) {
-    console.log("Sto usando configurazione del progetto");
-    return JSON.parse(readFileSync(localConfigPath, "utf-8"));
+    return JSON.parse(readFileSync(localConfigPath, 'utf-8'))
   }
 
-  throw new Error(
-    "File di configurazione non trovato. Crea gch.config.json nella tua repository."
-  );
+  return null
 }
 
 // score di review minimo
-const MIN_REVIEW_SCORE = 7;
+const MIN_REVIEW_SCORE = 7
 
 // Configurazione predefinita
-const MIN_TOKEN_LENGTH = 3000;
+const MIN_TOKEN_LENGTH = 3000
 
 // Esempio di uso
-const config = loadConfig();
+const config = loadConfig()
+
+if (!config) {
+  console.log(chalk.blue('🔧 Caricamento configurazione...'))
+  console.error(chalk.red('ERRORE: Configurazione non trovata.'))
+  console.log(
+    chalk.yellow(
+      'Assicurati di avere un file gch.config.json nella root del progetto.'
+    )
+  )
+  process.exit(1)
+}
 
 if (!config.geminiApiKey) {
-  console.error(
-    chalk.red("ERRORE: Chiave API key non configurata."),
-  );
-  process.exit(1);
+  console.log(chalk.blue('🔧 Caricamento configurazione...'))
+  console.error(chalk.red('ERRORE: Chiave API key non configurata.'))
+  console.log(
+    chalk.yellow(
+      'Assicurati di avere la chiave API key di Gemini AI nel file gch.config.json.'
+    )
+  )
+  process.exit(1)
 }
 
 // Configurazione Conventional Commits
 const COMMIT_TYPES = [
-  { name: "feat", description: "Una nuova funzionalità" },
-  { name: "fix", description: "Una correzione di bug" },
-  { name: "docs", description: "Modifiche alla documentazione" },
-  { name: "style", description: "Formattazione, stile" },
-  { name: "refactor", description: "Refactoring del codice" },
-  { name: "perf", description: "Miglioramento delle prestazioni" },
-  { name: "test", description: "Aggiunta o modifica di test" },
-  { name: "chore", description: "Attività di manutenzione" },
-  { name: "BREAKING CHANGE", description: "Modifica che rompe la compatibilità" },
-];
+  { name: 'feat', description: 'Una nuova funzionalità' },
+  { name: 'fix', description: 'Una correzione di bug' },
+  { name: 'docs', description: 'Modifiche alla documentazione' },
+  { name: 'style', description: 'Formattazione, stile' },
+  { name: 'refactor', description: 'Refactoring del codice' },
+  { name: 'perf', description: 'Miglioramento delle prestazioni' },
+  { name: 'test', description: 'Aggiunta o modifica di test' },
+  { name: 'chore', description: 'Attività di manutenzione' },
+  {
+    name: 'BREAKING CHANGE',
+    description: 'Modifica che rompe la compatibilità',
+  },
+]
 
-async function askGeminiForReview(diff) {
+async function askGeminiForReview() {
+  console.log(chalk.blue('\n🔍 Analisi del codice in corso...'))
+  const diff = getDiff()
   const reviewPrompt = `ANALISI CODICE - ISTRUZIONI STRETTE
 
 ***Obiettivo:*** 
@@ -105,74 +117,43 @@ Se il diff è vuoto o irrilevante, rispondi con:
 2. Correttezza: Nessuna modifica rilevante
 3. Manutenibilità: Nessuna modifica rilevante 
 4. Problemi: Diff non analizzabile
-Score: 0/10`;
+Score: 0/10`
 
   try {
     const result = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent?key=${config.geminiApiKey}`,
       {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: reviewPrompt }] }],
         }),
       }
-    );
-    const response = await result.json();
-    return response?.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
+    )
+    const response = await result.json()
+    return response?.candidates?.[0]?.content?.parts?.[0]?.text ?? null
   } catch (error) {
-    console.error(
-      chalk.yellow("⚠ Errore durante la review Gemini:"),
-      error.message
-    );
-    return null;
+    console.error(chalk.yellow('⚠️ Errore durante la review:'), error.message)
+    return null
   }
 }
 
-async function askGeminiForGeneratedCommitMessage(diff) {
-    if (!diff) {
-      console.log(chalk.yellow("Nessuna modifica staged per il commit"));
-      process.exit(1);
-    }
+async function askGeminiForGeneratedCommitMessage() {
+  const diff = getDiff()
+  if (!diff) {
+    console.log(chalk.yellow('Nessuna modifica staged per il commit'))
+    process.exit(1)
+  }
 
-    // 1. Supporto per commit multipli
-    const stagedFiles = execSync("git diff --name-only --cached")
-      .toString()
-      .split("\n")
-      .filter(Boolean);
-    console.log(
-      chalk.blue(
-        `File modificati (${stagedFiles.length}):\n${stagedFiles.join("\n")}`
-      )
-    );
-
-    // 2. Integrazione con commit convenzionali
-    const { commitType } = await inquirer.prompt([
-      {
-        type: "list",
-        name: "commitType",
-        message: "Seleziona il tipo di commit:",
-        default: config.defaultCommitType,
-        validate: (input) =>
-          COMMIT_TYPES.some((type) => type.name === input) ||
-          "Tipo di commit non valido",
-        // Mostra le opzioni con descrizione
-        choices: COMMIT_TYPES.map((type) => ({
-          name: `${type.name.padEnd(8)} - ${type.description}`,
-          value: type.name,
-        })),
-      }
-    ]);
-
-    // Genera prompt per Gemini
-    const prompt = `Genera UN SOLO messaggio di commit seguendo STRETTAMENTE queste regole:
+  // Genera prompt per Gemini
+  const prompt = `Genera UN SOLO messaggio di commit seguendo STRETTAMENTE queste regole:
 
 REGOLE OBBLIGATORIE:
 1. Formato: <tipo>(<ambito>)?: <descrizione>
 2. Lunghezza TOTALE MASSIMA: 50 caratteri (controlla prima di rispondere)
 3. Lingua: inglese
 4. Struttura:
-   - Tipo: ${commitType}
+   - Tipo: feat, fix, docs, style, refactor, perf, test, chore, BREAKING CHANGE
    - Ambito opzionale (solo se strettamente necessario)
    - ": " (due punti + spazio)
    - Descrizione concisa in inglese
@@ -192,227 +173,314 @@ Analizza questo diff e genera SOLO il messaggio di commit (senza commenti aggiun
 2. Sia <=50 caratteri
 3. Descriva CONCISAMENTE le modifiche
 
-Diff: ${diff.substring(0, MIN_TOKEN_LENGTH)}`;
-    console.log(chalk.blue("📥​ Prompt inviato a Gemini"));
-    console.log(chalk.blue("⌛​ Attendi qualche secondo per la risposta..."));
-    try {
-      const result = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent?key=${config.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: prompt,
-                  },
-                ],
-              },
-            ],
-          }),
-        }
-      );
-      const response = await result.json();
-      return response?.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
-    } catch (error) {
-      console.error(
-        chalk.yellow("⚠️​ Errore durante la review Gemini:"),
-        error.message
-      );
-      return null;
-    }
+Diff: ${diff.substring(0, MIN_TOKEN_LENGTH)}`
+  console.log(chalk.blue('⌛​ Attendi qualche secondo per la generazione...'))
+  try {
+    const result = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent?key=${config.geminiApiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt,
+                },
+              ],
+            },
+          ],
+        }),
+      }
+    )
+    const response = await result.json()
+    return response?.candidates?.[0]?.content?.parts?.[0]?.text ?? null
+  } catch (error) {
+    console.error(chalk.yellow('⚠️​ Errore durante la review:'), error.message)
+    return null
+  }
 }
 
-function validateMessage(msg)  {
-  const subject = msg.trim(); // Trim per sicurezza
-
-  console.log(chalk.blue(`Messaggio di commit generato => ${subject}`));
+function validateMessage(msg) {
+  const subject = msg.trim() // Trim per sicurezza
 
   // Verifica lunghezza soggetto
   if (subject.length > config.maxSubjectLength) {
-    console.log(chalk.red(`La riga soggetto supera ${config.maxSubjectLength} caratteri (${subject.length})`));
-    return false;
+    console.log(
+      chalk.red(
+        `La riga soggetto supera ${config.maxSubjectLength} caratteri (${subject.length})`
+      )
+    )
+    return false
   }
 
   const commitType = COMMIT_TYPES.map((type) => type.name).find(
-    (type) => type === subject.split(":")[0].trim()
-  );
-
-  console.log(chalk.blue(`Tipo di commit selezionato: ${commitType}`));
+    (type) => type === subject.split(':')[0].trim()
+  )
 
   // Regex migliorata (gestisce più spazi dopo : e controlla meglio gli scope)
-  const commitRegex = new RegExp(`^${commitType}(?:\\([^)]+\\))?:\\s+.+`);
+  const commitRegex = new RegExp(`^${commitType}(?:\\([^)]+\\))?:\\s+.+`)
 
   if (!commitRegex.test(subject)) {
-    console.log(chalk.red("Formato Conventional Commit non valido. Esempio: 'feat: descrizione' o 'feat(scope): descrizione'"));
-    return false;
+    console.log(
+      chalk.red(
+        "Formato Conventional Commit non valido. Esempio: 'feat: descrizione' o 'feat(scope): descrizione'"
+      )
+    )
+    return false
   }
 
-  return true;
+  return true
+}
+
+function getDiff() {
+  try {
+    return execSync('git diff --cached').toString()
+  } catch (error) {
+    console.error(
+      chalk.red('Errore durante il recupero delle modifiche staged:'),
+      error.message
+    )
+    return null
+  }
+}
+
+function getModifiedFiles() {
+  const output = execSync('git status --porcelain').toString()
+  const lines = output.split('\n').filter(Boolean)
+  const files = lines.map((line) => line.slice(3).trim()).filter(Boolean)
+  return files
+}
+
+function AsciiTitle(text) {
+  return new Promise(async (resolve) => {
+    const asciiTitle = await figlet.text(text, {
+      font: 'Standard',
+      horizontalLayout: 'default',
+      verticalLayout: 'default',
+      whitespaceBreak: true,
+    })
+
+    console.log(asciiTitle)
+    resolve()
+  })
 }
 
 async function main() {
-  console.log(chalk.blue("🔧 Git Commit Helper CLI => ctrl+c: exit"));
+  await AsciiTitle('The Git Commit Helper IT')
+  console.log(chalk.blue('\n🔧 ctrl+c => exit 🔧\n'))
   try {
-    // Ottieni le differenze staged
-    let diff = execSync("git diff --cached").toString();
+    // 1. Controllo delle modifiche staged
+    const modifiedFiles = getModifiedFiles()
 
-    if (!diff) {
-      console.log(chalk.yellow("Nessuna modifica staged per il commit"));
-
-      const { confirmAdd } = await inquirer.prompt([
-        {
-          type: "confirm",
-          name: "confirmAdd",
-          message: "Procedere con il 'git add .'?",
-          default: true,
-        },
-      ]);
-
-      if (confirmAdd) {
-        execSync(`git add .`, {
-          stdio: "inherit",
-        });
-        console.log(chalk.green("✔️​ Add eseguito con successo!"));
-        diff = execSync("git diff --cached").toString();
-      } else {
-        console.log(chalk.yellow("❌ Add annullato"));
-        process.exit(0);
-      }
+    if (modifiedFiles.length === 0) {
+      console.log(chalk.red('❌ Nessun file modificato da aggiungere.'))
+      console.log(
+        chalk.yellow(
+          'Assicurati di modificare o aggiungere i file prima di eseguire il commit.'
+        )
+      )
+      process.exit(0)
     }
 
-    // 1. Richiesta di review del codice
+    if (modifiedFiles.length === 1) {
+      console.log(chalk.blue(`🛠️ File modificato: ${modifiedFiles[0]}`))
+      execSync(`git add "${modifiedFiles[0]}"`)
+      console.log(chalk.green('✔️​ File aggiunto con successo!'))
+    } else {
+      console.log(
+        chalk.blue(
+          `🛠️ File modificati (${modifiedFiles.length}):\n${modifiedFiles.join('\n')}`
+        )
+      )
+
+      const { selectedFiles } = await inquirer.prompt([
+        {
+          type: 'checkbox',
+          name: 'selectedFiles',
+          message:
+            'Seleziona i file da aggiungere al commit: (default tutti selezionati)',
+          choices: modifiedFiles.map((file) => ({
+            name: file,
+            checked: true,
+          })),
+        },
+      ])
+
+      if (selectedFiles.length === 0) {
+        console.log(
+          chalk.yellow('❌ Nessun file selezionato. Commit annullato.')
+        )
+        process.exit(0)
+      }
+
+      for (const file of selectedFiles) {
+        execSync(`git add "${file}"`)
+      }
+
+      console.log(chalk.green('✔️​ File aggiunti con successo!'))
+    }
+
+    // 2. Richiesta di review del codice
     const { wantReview } = await inquirer.prompt({
-      type: "confirm",
-      name: "wantReview",
-      message: "Vuoi una review del codice da Gemini prima di procedere?",
+      type: 'confirm',
+      name: 'wantReview',
+      message: 'Vuoi una review del codice prima di procedere?',
       default: true,
-    });
-    
+    })
+
     if (wantReview) {
-      console.log(chalk.blue("\n🔍 Analisi del codice in corso..."));
-      const review = await askGeminiForReview(diff);
+      const review = await askGeminiForReview()
 
       if (review === null) {
-        console.log(chalk.yellow("⚠️​ Impossibile ottenere una review"));
-        process.exit(1);
-      } 
-      console.log(chalk.blue("\n🔍 Review ricevuta:"), review);
-      const score = review.match(/Score:\s*(\d+)\/10/i);
+        console.log(chalk.yellow('⚠️​ Impossibile ottenere una review'))
+        process.exit(1)
+      }
+      console.log(chalk.blue('\n🔍 Review tuo codice:\n'), review)
+      const score = review.match(/Score:\s*(\d+)\/10/i)
       if (!score) {
         console.log(
           chalk.yellow(`⚠️​ Review non contiene un punteggio valido, ${score}`)
-        );
-        process.exit(1);
+        )
+        process.exit(1)
       }
-      const scoreValue = parseInt(score[1], 10);
+      const scoreValue = parseInt(score[1], 10)
       if (scoreValue < MIN_REVIEW_SCORE) {
         console.log(
           chalk.red(
             `\n❌ Review score: ${scoreValue}/10 - Modifiche non sufficienti`
           )
-        );
+        )
         const { proceedAnyway } = await inquirer.prompt({
-          type: "confirm",
-          name: "proceedAnyway",
-          message: "Vuoi procedere comunque?",
+          type: 'confirm',
+          name: 'proceedAnyway',
+          message:
+            'Vuoi procedere comunque? (Attenzione: le modifiche potrebbero non essere adeguate)',
           default: false,
-        });
-        if (!proceedAnyway) process.exit(1);
+        })
+        if (!proceedAnyway) process.exit(1)
       } else {
         console.log(
           chalk.green(
             `\n✅ Review score: ${scoreValue}/10 - Modifiche approvate da Gemini!`
           )
-        );
+        )
       }
     }
 
-    let msgGemini = await askGeminiForGeneratedCommitMessage(diff);
+    // 3. Generazione del messaggio di commit
+    let msgGemini = await askGeminiForGeneratedCommitMessage()
     if (msgGemini === null) {
       console.log(
-        chalk.yellow("⚠️​ Impossibile generare il messaggio di commit")
-      );
-      process.exit(1);
+        chalk.yellow('⚠️​ Impossibile generare il messaggio di commit')
+      )
+      process.exit(1)
     }
-    let commitMessage = msgGemini.replace(/```/g, "").replace(/\n/g, "");
+    let commitMessage = msgGemini.replace(/```/g, '').replace(/\n/g, '')
+    let commitProposed = true
 
-    // 3. Controllo della lunghezza del messaggio
-    const validationResult = validateMessage(
-      commitMessage
-    );
+    // 4. Controllo della lunghezza del messaggio e validazione
+    const validationResult = validateMessage(commitMessage)
     if (!validationResult) {
-      console.error(chalk.red(`❌ Errore di validazione`));
+      console.error(chalk.red(`❌ Errore di validazione`))
       const { fixMessage } = await inquirer.prompt({
-        type: "confirm",
-        name: "fixMessage",
-        message: "Vuoi modificare il messaggio di commit?",
+        type: 'confirm',
+        name: 'fixMessage',
+        message: 'Vuoi modificare il messaggio di commit?',
         default: true,
-      });
+      })
       if (fixMessage) {
+        // 3b. Modifica del messaggio di commit
+        console.log(chalk.blue('🔧 Modifica del messaggio di commit...'))
+        const { commitType } = await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'commitType',
+            message: 'Seleziona il tipo di commit:',
+            default: config.defaultCommitType,
+            validate: (input) =>
+              COMMIT_TYPES.some((type) => type.name === input) ||
+              'Tipo di commit non valido',
+            // Mostra le opzioni con descrizione
+            choices: COMMIT_TYPES.map((type) => ({
+              name: `${type.name.padEnd(8)} - ${type.description}`,
+              value: type.name,
+            })),
+          },
+        ])
         const { newMessage } = await inquirer.prompt({
-          type: "input",
-          name: "newMessage",
-          message: "Inserisci il nuovo messaggio di commit:",
+          type: 'input',
+          name: 'newMessage',
+          message: 'Inserisci il nuovo messaggio di commit (solo messaggio):',
           default: msg,
-        });
-        msg = newMessage;
+        })
+        msg = `${commitType}: ${newMessage}`
+        commitProposed = false
       } else {
-        console.log(chalk.yellow("❌ Commit annullato"));
-        process.exit(1);
+        console.log(chalk.yellow('❌ Commit annullato'))
+        process.exit(1)
       }
     }
 
-    // Mostra anteprima e chiedi conferma
-    console.log(chalk.green("\nAnteprima messaggio di commit:"));
-    console.log(chalk.cyan("---"));
-    console.log(chalk.cyan(commitMessage));
-    console.log(chalk.cyan("---"));
+    // 4. Mostra anteprima e chiedi conferma
+    console.log(
+      chalk.green(
+        commitProposed
+          ? '\n✅ Anteprima messaggio di commit proposto:'
+          : '\n✅ Anteprima messaggio di commit modificato:'
+      )
+    )
+    console.log(chalk.cyan('---'))
+    console.log(chalk.cyan(commitMessage))
+    console.log(chalk.cyan('---'))
 
     const { confirmCommit } = await inquirer.prompt([
       {
-        type: "confirm",
-        name: "confirmCommit",
-        message: "Procedere con il commit?",
+        type: 'confirm',
+        name: 'confirmCommit',
+        message: 'Procedere con il commit?',
         default: true,
       },
-    ]);
+    ])
 
     if (confirmCommit) {
       execSync(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`, {
-        stdio: "inherit",
-      });
-      console.log(chalk.green("✔️​ Commit creato con successo!"));
+        stdio: 'inherit',
+      })
+      console.log(chalk.green('✔️​ Commit creato con successo!'))
     } else {
-      console.log(chalk.yellow("❌ Commit annullato"));
-      process.exit(0);
+      console.log(chalk.yellow('❌ Commit annullato'))
+      process.exit(0)
     }
 
+    // 5. Push delle modifiche
+    console.log(chalk.blue('\n🚀 Pronto per il push delle modifiche...'))
     const { confirmPush } = await inquirer.prompt([
       {
-        type: "confirm",
-        name: "confirmPush",
-        message: "Procedere con il push?",
+        type: 'confirm',
+        name: 'confirmPush',
+        message: 'Procedere con il push?',
         default: true,
       },
-    ]);
+    ])
 
     if (confirmPush) {
       execSync(`git push`, {
-        stdio: "inherit",
-      });
-      console.log(chalk.green("✔️​ Push eseguito con successo!"));
+        stdio: 'inherit',
+      })
+      console.log(chalk.green('✔️​ Push eseguito con successo!'))
+      console.log('🎉 Ci sentiamo al prossimo commit! Buon sviluppo! 🎉')
+      process.exit(0)
     } else {
-      console.log(chalk.yellow("❌ Push annullato"));
-      process.exit(0);
+      console.log(chalk.yellow('❌ Push annullato'))
+      process.exit(0)
     }
   } catch (error) {
-    console.error(chalk.red("Errore:"), error.message);
-    process.exit(1);
+    console.error(chalk.red('Errore:'), error.message)
+    process.exit(1)
   }
 }
 

@@ -15,13 +15,18 @@
   "scripts": {
     "init": "node ./bin/init-config.cjs",
     "setup": "node ./bin/setup.cjs",
-    "dev": "node ./src/index.js"
+    "dev": "node ./src/index.js",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "chalk": "^5.4.1",
     "execa": "^7.1.1",
+    "figlet": "^1.8.1",
     "inquirer": "^12.7.0",
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
   },
   "keywords": [
     "git",
