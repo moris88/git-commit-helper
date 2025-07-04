@@ -433,7 +433,7 @@ async function main() {
     // 4. Controllo della lunghezza del messaggio e validazione
     const validationResult = validateMessage(commitMessage)
     if (!validationResult) {
-      console.error(chalk.red(`❌ Errore di validazione`))
+      console.error(chalk.red(`❌ Errore di validazione: ${commitMessage}`))
       const { fixMessage } = await inquirer.prompt({
         type: 'confirm',
         name: 'fixMessage',
@@ -463,7 +463,7 @@ async function main() {
           type: 'input',
           name: 'newMessage',
           message: 'Inserisci il nuovo messaggio di commit (solo messaggio):',
-          default: msg,
+          default: '',
         })
         msg = `${commitType}: ${newMessage}`
         commitProposed = false
@@ -520,6 +520,7 @@ async function main() {
         execSync(`git push`, { stdio: 'inherit' })
         console.log(chalk.green('✔️​ Push eseguito con successo!'))
       } catch (error) {
+        // 5b. Se il push fallisce perché non c'è un upstream remoto
         const currentBranch = getCurrentBranch()
         console.log(
           chalk.yellow(
