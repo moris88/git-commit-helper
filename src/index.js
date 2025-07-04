@@ -269,9 +269,57 @@ function AsciiTitle(text) {
   })
 }
 
+function getCurrentBranch() {
+  try {
+    return execSync('git rev-parse --abbrev-ref HEAD').toString().trim()
+  } catch (err) {
+    console.error(chalk.red('❌ Impossibile determinare il branch corrente'))
+    process.exit(1)
+  }
+}
+
+async function checkBranchAndMaybeCreateNew() {
+  const forbiddenBranches = ['main', 'master', 'dev']
+  const currentBranch = getCurrentBranch()
+
+  if (forbiddenBranches.includes(currentBranch)) {
+    console.log(
+      chalk.red(
+        `🚫 Sei sul branch protetto "${currentBranch}". Il commit non è permesso direttamente qui.`
+      )
+    )
+
+    const { newBranchName } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'newBranchName',
+        message: 'Inserisci il nome del nuovo branch:',
+        validate: (input) =>
+          /^[\w\-\/]+$/.test(input) || 'Il nome del branch non è valido',
+      },
+    ])
+
+    try {
+      execSync(`git checkout -b ${newBranchName}`, { stdio: 'inherit' })
+      console.log(
+        chalk.green(`✔️ Nuovo branch '${newBranchName}' creato e attivato.`)
+      )
+    } catch (err) {
+      console.error(
+        chalk.red('❌ Errore nella creazione del branch:'),
+        err.message
+      )
+      process.exit(1)
+    }
+  } else {
+    console.log(chalk.blue(`✅ Branch corrente: ${currentBranch}`))
+  }
+}
+
 async function main() {
   await AsciiTitle('The Git Commit Helper IT')
   console.log(chalk.blue('\n🔧 ctrl+c => exit 🔧\n'))
+  await checkBranchAndMaybeCreateNew()
   try {
     // 1. Controllo delle modifiche staged
     const modifiedFiles = getModifiedFiles()
@@ -468,10 +516,34 @@ async function main() {
     ])
 
     if (confirmPush) {
-      execSync(`git push`, {
-        stdio: 'inherit',
-      })
-      console.log(chalk.green('✔️​ Push eseguito con successo!'))
+      try {
+        execSync(`git push`, { stdio: 'inherit' })
+        console.log(chalk.green('✔️​ Push eseguito con successo!'))
+      } catch (error) {
+        const currentBranch = getCurrentBranch()
+        console.log(
+          chalk.yellow(
+            `\n⚠️ Il branch '${currentBranch}' non ha upstream remoto.`
+          )
+        )
+        console.log(
+          chalk.blue(
+            `🌐 Eseguo: git push --set-upstream origin ${currentBranch}\n`
+          )
+        )
+
+        try {
+          execSync(`git push --set-upstream origin ${currentBranch}`, {
+            stdio: 'inherit',
+          })
+          console.log(
+            chalk.green('✔️​ Push con upstream eseguito con successo!')
+          )
+        } catch (err) {
+          console.error(chalk.red('❌ Push fallito:'), err.message)
+          process.exit(1)
+        }
+      }
       console.log('🎉 Ci sentiamo al prossimo commit! Buon sviluppo! 🎉')
       process.exit(0)
     } else {
