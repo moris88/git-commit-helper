@@ -516,10 +516,34 @@ async function main() {
     ])
 
     if (confirmPush) {
-      execSync(`git push`, {
-        stdio: 'inherit',
-      })
-      console.log(chalk.green('✔️​ Push eseguito con successo!'))
+      try {
+        execSync(`git push`, { stdio: 'inherit' })
+        console.log(chalk.green('✔️​ Push eseguito con successo!'))
+      } catch (error) {
+        const currentBranch = getCurrentBranch()
+        console.log(
+          chalk.yellow(
+            `\n⚠️ Il branch '${currentBranch}' non ha upstream remoto.`
+          )
+        )
+        console.log(
+          chalk.blue(
+            `🌐 Eseguo: git push --set-upstream origin ${currentBranch}\n`
+          )
+        )
+
+        try {
+          execSync(`git push --set-upstream origin ${currentBranch}`, {
+            stdio: 'inherit',
+          })
+          console.log(
+            chalk.green('✔️​ Push con upstream eseguito con successo!')
+          )
+        } catch (err) {
+          console.error(chalk.red('❌ Push fallito:'), err.message)
+          process.exit(1)
+        }
+      }
       console.log('🎉 Ci sentiamo al prossimo commit! Buon sviluppo! 🎉')
       process.exit(0)
     } else {
