@@ -33,7 +33,7 @@ This tool is designed for developers who want to improve their productivity and 
 Install the package as a development dependency in your project:
 
 ```bash
-npm install --save-dev git-commit-helper
+npm install --save-dev git-commit-helper-it
 ```
 
 ### Configuration
@@ -113,7 +113,7 @@ Questo strumento è pensato per gli sviluppatori che desiderano migliorare la pr
 Installa il pacchetto come dipendenza di sviluppo nel tuo progetto:
 
 ```bash
-npm install --save-dev git-commit-helper
+npm install --save-dev git-commit-helper-it
 ```
 
 ### Configurazione
