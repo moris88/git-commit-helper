@@ -4,7 +4,6 @@
   "type": "module",
   "description": "Generatore automatico di messaggi di commit con Gemini AI",
   "bin": {
-    "git-commit-helper-it": "./bin/git-commit-helper.cjs",
     "gch": "./bin/git-commit-helper.cjs",
     "gch-init": "./bin/init-config.cjs"
   },
