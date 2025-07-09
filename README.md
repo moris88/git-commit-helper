@@ -16,6 +16,7 @@ This tool is designed for developers who want to improve their productivity and 
 - **-b Interactive Staging**: Interactively select which modified files you want to include in your commit.
 - **-b Protected Branch Guard**: Prevents direct commits to critical branches like `main` or `master`, prompting you to create a new branch.
 - **📂 Handles Complex File Paths**: Works seamlessly with file names containing spaces or special characters.
+- **📏 Diff Size Limit**: Prevents commits that exceed a configurable line count, encouraging smaller, atomic changes.
 
 ---
 
@@ -40,7 +41,7 @@ npm install --save-dev git-commit-helper
 Before the first run, you need to create a configuration file. You can do this automatically by running the init script:
 
 ```bash
-npx gch-init
+npx git-commit-helper-init
 ```
 
 This will create a `gch.config.json` file in your project's root directory. Open it and add your Gemini API key:
@@ -48,9 +49,10 @@ This will create a `gch.config.json` file in your project's root directory. Open
 ```json
 {
   "geminiApiKey": "your-api-key-here",
-  "geminiModel": "gemini-1.5-flash",
+  "geminiModel": "gemini-2.0-flash",
   "defaultCommitType": "feat",
-  "maxSubjectLength": 50
+  "maxSubjectLength": 50,
+  "maxDiffLines": 500
 }
 ```
 
@@ -94,6 +96,7 @@ Questo strumento è pensato per gli sviluppatori che desiderano migliorare la pr
 - **-b Staging Interattivo**: Seleziona in modo interattivo quali file modificati includere nel commit.
 - **-b Protezione Branch Critici**: Impedisce commit diretti su branch critici come `main` o `master`, invitandoti a creare un nuovo branch.
 - **📂 Gestione Nomi File Complessi**: Funziona senza problemi con nomi di file che contengono spazi o caratteri speciali.
+- **📏 Limite Dimensione Diff**: Impedisce commit che superano un numero di righe configurabile, incoraggiando modifiche più piccole e atomiche.
 
 ---
 
@@ -126,9 +129,10 @@ Questo creerà un file `gch.config.json` nella directory principale del tuo prog
 ```json
 {
   "geminiApiKey": "la-tua-api-key-qui",
-  "geminiModel": "gemini-1.5-flash",
+  "geminiModel": "gemini-2.0-flash",
   "defaultCommitType": "feat",
-  "maxSubjectLength": 50
+  "maxSubjectLength": 50,
+  "maxDiffLines": 500
 }
 ```
 
