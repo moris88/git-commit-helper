@@ -7,6 +7,7 @@ const template = {
   geminiModel: "gemini-2.0-flash",
   defaultCommitType: "feat",
   maxSubjectLength: 50,
+  maxDiffLines: 500
 };
 
 try {

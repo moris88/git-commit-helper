@@ -42,6 +42,19 @@ export function getModifiedFiles() {
     return files;
   }
 
+export function getDiffForFiles(files) {
+    if (!files || files.length === 0) {
+      return '';
+    }
+    try {
+      const fileArgs = files.map(file => `"${file}"`).join(' ');
+      return execSync(`git diff -- ${fileArgs}`).toString();
+    } catch (error) {
+      console.error(chalk.red(t('getDiffError')), error.message);
+      return null;
+    }
+  }
+
 export function getCurrentBranch() {
   try {
     return execSync('git rev-parse --abbrev-ref HEAD').toString().trim();

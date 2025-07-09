@@ -9,6 +9,7 @@ import {
     commit,
     push,
     getCurrentBranch,
+    getDiffForFiles,
 } from './git.js';
 import {
     askGeminiForReview,
@@ -60,6 +61,19 @@ export async function main() {
         if (selectedFiles.length === 0) {
             printMessage(t('noFilesSelected'));
             process.exit(0);
+        }
+
+        // Check diff size before staging
+        if (config.maxDiffLines && config.maxDiffLines > 0) {
+            const diff = getDiffForFiles(selectedFiles);
+            if (diff === null) {
+                process.exit(1); // Error already printed in getDiffForFiles
+            }
+            const lineCount = diff.split('\n').length;
+            if (lineCount > config.maxDiffLines) {
+                printError(t('diffTooLarge', { maxLines: config.maxDiffLines, actualLines: lineCount }));
+                process.exit(1);
+            }
         }
 
         stageFiles(selectedFiles);
