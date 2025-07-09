@@ -19,6 +19,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@google/genai": "^1.8.0",
     "chalk": "^5.4.1",
     "execa": "^7.1.1",
     "figlet": "^1.8.1",

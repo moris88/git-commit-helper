@@ -49,9 +49,10 @@ This will create a `gch.config.json` file in your project's root directory. Open
 ```json
 {
   "geminiApiKey": "your-api-key-here",
-  "geminiModel": "gemini-2.0-flash",
+  "geminiModel": "gemini-2.5-flash",
   "defaultCommitType": "feat",
   "maxSubjectLength": 50,
+  "minReviewScore": 6,
   "maxDiffLines": 500
 }
 ```
@@ -76,6 +77,7 @@ The tool will guide you through the following steps:
 6. **Push Confirmation**: Asks if you want to push the changes to the remote repository.
 
 ---
+
 ---
 
 # Git Commit Helper con Gemini AI (Italiano)
@@ -129,9 +131,10 @@ Questo creerà un file `gch.config.json` nella directory principale del tuo prog
 ```json
 {
   "geminiApiKey": "la-tua-api-key-qui",
-  "geminiModel": "gemini-2.0-flash",
+  "geminiModel": "gemini-2.5-flash",
   "defaultCommitType": "feat",
   "maxSubjectLength": 50,
+  "minReviewScore": 6,
   "maxDiffLines": 500
 }
 ```
