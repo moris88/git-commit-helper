@@ -1,6 +1,6 @@
 {
   "name": "git-commit-helper-it",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "type": "module",
   "description": "Generatore automatico di messaggi di commit con Gemini AI",
   "bin": {
