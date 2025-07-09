@@ -1,6 +1,5 @@
 import {
     loadConfig,
-    MIN_REVIEW_SCORE
 } from './config.js';
 import {
     getModifiedFiles,
@@ -30,7 +29,6 @@ import {
 import {
     t
 } from './i18n.js';
-import chalk from 'chalk';
 
 export async function main() {
     printTitle();
@@ -99,14 +97,17 @@ export async function main() {
             }
 
             const scoreValue = parseInt(scoreMatch[1], 10);
-            if (scoreValue < MIN_REVIEW_SCORE) {
-                if (!(await confirmProceed(scoreValue))) {
-                    process.exit(1);
-                }
+            if (scoreValue < (config.minReviewScore || 6)) {
+              if (!(await confirmProceed(scoreValue))) {
+                process.exit(1)
+              }
             } else {
-                printMessage(t('reviewScoreHigh', {
-                    score: scoreValue
-                }), 'green');
+              printMessage(
+                t('reviewScoreHigh', {
+                  score: scoreValue,
+                }),
+                'green'
+              )
             }
         }
 

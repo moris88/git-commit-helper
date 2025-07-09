@@ -11,10 +11,6 @@ export function loadConfig() {
   return null;
 }
 
-// Costanti di configurazione
-export const MIN_REVIEW_SCORE = 7;
-export const MIN_TOKEN_LENGTH = 3000;
-
 // Tipi di commit per Conventional Commits
 export const COMMIT_TYPES = [
   { name: 'feat', description: t('commitTypeFeat') },
