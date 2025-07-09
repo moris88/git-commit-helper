@@ -21,7 +21,6 @@ async function callGemini(prompt, config) {
         },
       },
     })
-    console.log(response.text)
     return response?.candidates?.[0]?.content?.parts?.[0]?.text ?? null
   } catch (error) {
     console.error(chalk.yellow(t('reviewError')), error.message)
