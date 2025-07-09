@@ -41,7 +41,7 @@ npm install --save-dev git-commit-helper-it
 Before the first run, you need to create a configuration file. You can do this automatically by running the init script:
 
 ```bash
-npx git-commit-helper-init
+npx gch-init
 ```
 
 This will create a `gch.config.json` file in your project's root directory. Open it and add your Gemini API key:
