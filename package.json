@@ -1,6 +1,6 @@
 {
   "name": "git-commit-helper-it",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "type": "module",
   "description": "Generatore automatico di messaggi di commit con Gemini AI",
   "bin": {
@@ -9,7 +9,8 @@
   },
   "files": [
     "bin",
-    "src"
+    "src",
+    "locales"
   ],
   "scripts": {
     "init": "node ./bin/init-config.cjs",
