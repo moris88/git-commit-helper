@@ -14,7 +14,7 @@ async function callGemini(prompt, config) {
     const response = await ai.models.generateContent({
       model: config.geminiModel || 'gemini-2.5-flash', // Default to gemini-2.5-flash if not specified
       contents: sliced,
-      maxOutputTokens: 60000,
+      maxOutputTokens: 60_000,
       config: {
         thinkingConfig: {
           thinkingBudget: 0, // Disables thinking
