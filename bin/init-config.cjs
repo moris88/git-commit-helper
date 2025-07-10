@@ -1,6 +1,6 @@
-import { writeFileSync, existsSync } from "fs";
-import { resolve } from "path";
-import { t } from '../src/i18n.js';
+const { writeFileSync, existsSync } = require('fs');
+const { resolve } = require('path');
+const { t } = require('../src/i18n.js');
 
 const template = {
   geminiApiKey: 'your-api-key-here', // Replace with your actual Gemini API key
