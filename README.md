@@ -36,6 +36,15 @@ Install the package as a development dependency in your project:
 npm install --save-dev git-commit-helper-it
 ```
 
+You can also install it globally for easier access:
+
+```bash
+or globally:
+
+```bash
+npm install -g git-commit-helper-it
+```
+
 ### Configuration
 
 Before the first run, you need to create a configuration file. You can do this automatically by running the init script:
@@ -116,6 +125,12 @@ Installa il pacchetto come dipendenza di sviluppo nel tuo progetto:
 
 ```bash
 npm install --save-dev git-commit-helper-it
+```
+
+Puoi anche installarlo globalmente per un accesso più semplice:
+
+```bash
+npm install -g git-commit-helper-it
 ```
 
 ### Configurazione

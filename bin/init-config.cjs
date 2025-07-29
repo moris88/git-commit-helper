@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const { writeFileSync, existsSync } = require('fs');
 const { resolve } = require('path');
 const { homedir } = require('os');
