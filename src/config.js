@@ -1,12 +1,17 @@
 import { resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
+import { homedir } from 'os';
 import { t } from './i18n.js';
 
 // Funzione per caricare la configurazione
 export function loadConfig() {
   const localConfigPath = resolve(process.cwd(), 'gch.config.json');
+  const globalConfigPath = resolve(homedir(), '.gch.config.json');
   if (existsSync(localConfigPath)) {
     return JSON.parse(readFileSync(localConfigPath, 'utf-8'));
+  }
+  if (existsSync(globalConfigPath)) {
+    return JSON.parse(readFileSync(globalConfigPath, 'utf-8'));
   }
   return null;
 }
@@ -23,6 +28,10 @@ export const COMMIT_TYPES = [
   { name: 'chore', description: t('commitTypeChore') },
   {
     name: 'BREAKING CHANGE',
+    description: t('commitTypeBreaking'),
+  },
+  {
+    name: 'breaking',
     description: t('commitTypeBreaking'),
   },
 ];

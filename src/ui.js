@@ -30,13 +30,10 @@ export function validateMessage(msg, config) {
     return false;
   }
 
-  const commitType = COMMIT_TYPES.map((type) => type.name).find(
-    (type) => type === subject.split(':')[0].trim()
-  );
+  // Regex to validate conventional commit format, including optional scope and breaking change indicator (!)
+  const conventionalCommitRegex = /^(feat|fix|docs|style|refactor|perf|test|chore|breaking)(?:\(.*\))?!?: .*$/;
 
-  const commitRegex = new RegExp(`^${commitType}(?:\\([^)]+\\))?:\\s+.+`);
-
-  if (!commitRegex.test(subject)) {
+  if (!conventionalCommitRegex.test(subject) && !subject.startsWith('BREAKING CHANGE:')) {
     console.log(chalk.red(t('invalidFormat')));
     return false;
   }
