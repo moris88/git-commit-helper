@@ -53,7 +53,16 @@ Before the first run, you need to create a configuration file. You can do this a
 npx gch-init
 ```
 
-This will create a `gch.config.json` file in your project's root directory. Open it and add your Gemini API key:
+This will create a `gch.config.json` file in your project's root directory.
+Or, you can create a global configuration file:
+
+```bash
+npx gch-init --global
+```
+
+The `--global` flag will create the configuration file in your home directory, making it available for all projects.
+
+Open it and add your Gemini API key:
 
 ```json
 {
@@ -141,7 +150,16 @@ Prima del primo utilizzo, devi creare un file di configurazione. Puoi farlo auto
 npx gch-init
 ```
 
-Questo creerà un file `gch.config.json` nella directory principale del tuo progetto. Aprilo e aggiungi la tua API key di Gemini:
+Questo creerà un file `gch.config.json` nella directory principale del tuo progetto.
+Oppure, puoi creare globalmente il file di configurazione:
+
+```bash
+npx gch-init --global
+```
+
+Il comando `--global` creerà il file di configurazione nella tua home directory, rendendolo disponibile per tutti i progetti.
+
+Aprilo e aggiungi la tua API key di Gemini:
 
 ```json
 {
