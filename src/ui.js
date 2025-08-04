@@ -155,6 +155,17 @@ export async function confirmCommit(
   return confirmCommit
 }
 
+export async function confirmGenerateBody(autoConfirm = false) {
+  if (autoConfirm) return true
+  const { wantBody } = await inquirer.prompt({
+    type: 'confirm',
+    name: 'wantBody',
+    message: t('askForBody'),
+    default: true,
+  })
+  return wantBody
+}
+
 export async function confirmPush(autoConfirm = false) {
   if (autoConfirm) return true
   console.log(

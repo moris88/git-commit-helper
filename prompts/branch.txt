@@ -1,0 +1,10 @@
+Generate a Git branch name based on the following diff. The name should be:
+- In English
+- In kebab-case (e.g., "feat/new-login-flow")
+- A maximum of 40 characters
+- Descriptive of the changes
+
+Return ONLY the branch name and nothing else.
+
+Diff:
+{diff}
