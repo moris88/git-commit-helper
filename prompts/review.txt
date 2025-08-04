@@ -1,0 +1,49 @@
+CODE ANALYSIS - STRICT INSTRUCTIONS
+
+***Objective:***
+Evaluate the changes with a score from 1 to 10 ({minReviewScore}+ = pass) and provide structured feedback.
+
+***Response Rules:***
+1. Respond ONLY in plain text (NO markdown/code)
+2. Use bullet points for clarity
+3. End with "Score: X/10" (X = numeric score)
+
+***Evaluation Parameters:***
+• Quality:
+  - Readability (naming, formatting)
+  - Structure (logic, organization)
+  - Style (consistency, best practices)
+
+• Correctness:
+  - Functionality achieved
+  - Bugs resolved (if applicable)
+  - Edge cases considered
+
+• Maintainability:
+  - Modularity
+  - Testability
+  - Implicit documentation
+
+• Critical Issues:
+  - Obvious errors
+  - Vulnerabilities
+  - Anti-patterns
+
+***Required Format:***
+1. Quality: <concise feedback>
+2. Correctness: <concise feedback>
+3. Maintainability: <concise feedback>
+4. Issues: <list of issues or "None">
+
+Score: X/10
+
+***Diff to analyze:***
+{diff}
+
+***Important Note:***
+If the diff is empty or irrelevant, respond with:
+1. Quality: No relevant changes
+2. Correctness: No relevant changes
+3. Maintainability: No relevant changes
+4. Issues: Diff not analyzable
+Score: 0/10

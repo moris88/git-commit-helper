@@ -10,7 +10,8 @@
   "files": [
     "bin",
     "src",
-    "locales"
+    "locales",
+    "prompts"
   ],
   "scripts": {
     "init": "node ./bin/init-config.cjs",

@@ -12,8 +12,8 @@ export function printTitle() {
     whitespaceBreak: true,
   })
   console.log(asciiTitle)
-  console.log(chalk.blue(`\n${t('welcomeMessage')}\n`))
-  console.log(chalk.blue(`\n${t('exitMessage')}\n`))
+  console.log(chalk.blue(t('welcomeMessage')))
+  console.log(chalk.blue(t('exitMessage')))
 }
 
 export function validateMessage(msg, config) {

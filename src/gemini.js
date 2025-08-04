@@ -1,7 +1,14 @@
 import { GoogleGenAI } from '@google/genai'
 import chalk from 'chalk'
+import fs from 'fs'
+import path from 'path'
 import { getDiff } from './git.js'
 import { t } from './i18n.js'
+
+function getPrompt(name) {
+  const promptPath = path.join(process.cwd(), 'prompts', `${name}.txt`)
+  return fs.readFileSync(promptPath, 'utf-8')
+}
 
 async function callGemini(prompt, config) {
   try {
@@ -35,10 +42,10 @@ export async function askGeminiForReview(config) {
     process.exit(1)
   }
 
-  const reviewPrompt = t('reviewPrompt', {
-    minReviewScore: config.minReviewScore || 6, // Fallback to 7 if not set
-    diff,
-  })
+  const reviewPromptTemplate = getPrompt('review')
+  const reviewPrompt = reviewPromptTemplate
+    .replace('{minReviewScore}', config.minReviewScore || 6)
+    .replace('{diff}', diff)
 
   return callGemini(reviewPrompt, config)
 }
@@ -49,9 +56,10 @@ export async function askGeminiForGeneratedCommitMessage(config) {
     console.log(chalk.yellow(t('noStagedChanges')))
     process.exit(1)
   }
-  const prompt = t('commitPrompt', {
-    diff,
-  })
+  const commitPromptTemplate = getPrompt('commit')
+  const prompt = commitPromptTemplate
+    .replace('{maxSubjectLength}', config.maxSubjectLength || 50)
+    .replace('{diff}', diff)
 
   return callGemini(prompt, config)
 }
