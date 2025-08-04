@@ -12,6 +12,7 @@ import {
 import {
   askGeminiForReview,
   askGeminiForGeneratedCommitMessage,
+  askGeminiForCommitBody,
 } from './gemini.js'
 import {
   printTitle,
@@ -24,6 +25,7 @@ import {
   validateMessage,
   confirmCommit,
   confirmPush,
+  confirmGenerateBody,
 } from './ui.js'
 import { t } from './i18n.js'
 
@@ -44,9 +46,8 @@ export async function main(args = []) {
     process.exit(1)
   }
 
-  await checkBranchAndMaybeCreateNew()
-
   try {
+    await checkBranchAndMaybeCreateNew(config, autoConfirm)
     const modifiedFiles = getModifiedFiles()
     if (modifiedFiles.length === 0) {
       printMessage(t('noFilesModified'))
@@ -81,40 +82,55 @@ export async function main(args = []) {
     stageFiles(selectedFiles)
     printMessage(t('filesAddedSuccess'), 'green')
 
-    if (await confirmReview(autoConfirm)) {
-      printMessage(`${t('codeAnalysis')}`, 'blue')
-      const review = await askGeminiForReview(config)
-
-      if (!review) {
-        printMessage(t('reviewUnavailable'))
-        process.exit(1)
+    if (config.preCommitCommands && config.preCommitCommands.length > 0) {
+      printMessage(t('runningPreCommit'), 'blue')
+      for (const command of config.preCommitCommands) {
+        try {
+          printMessage(`  - ${command}`, 'yellow')
+          execSync(command, { stdio: 'inherit' })
+        } catch (error) {
+          printError(t('preCommitFailed', { command }))
+          printError(error.message)
+        }
       }
+    }
 
-      printMessage(`\n${t('reviewYourCode')}\n${review}`, 'blue')
-      const scoreRegex = /Score:\s*(\d+)\/10/i
-      const scoreMatch = scoreRegex.exec(review)
+    if (config.aiReviewEnabled !== false) {
+      if (await confirmReview(autoConfirm)) {
+        printMessage(`${t('codeAnalysis')}`, 'blue')
+        const review = await askGeminiForReview(config)
 
-      if (!scoreMatch) {
-        printMessage(
-          t('invalidScore', {
-            score: scoreMatch,
-          })
-        )
-        process.exit(1)
-      }
-
-      const scoreValue = parseInt(scoreMatch[1], 10)
-      if (scoreValue < (config.minReviewScore || 6)) {
-        if (!(await confirmProceed(scoreValue, autoConfirm))) {
+        if (!review) {
+          printMessage(t('reviewUnavailable'))
           process.exit(1)
         }
-      } else {
-        printMessage(
-          t('reviewScoreHigh', {
-            score: scoreValue,
-          }),
-          'green'
-        )
+
+        printMessage(`\n${t('reviewYourCode')}\n${review}`, 'blue')
+        const scoreRegex = /Score:\s*(\d+)\/10/i
+        const scoreMatch = scoreRegex.exec(review)
+
+        if (!scoreMatch) {
+          printMessage(
+            t('invalidScore', {
+              score: scoreMatch,
+            })
+          )
+          process.exit(1)
+        }
+
+        const scoreValue = parseInt(scoreMatch[1], 10)
+        if (scoreValue < (config.minReviewScore || 6)) {
+          if (!(await confirmProceed(scoreValue, autoConfirm))) {
+            process.exit(1)
+          }
+        } else {
+          printMessage(
+            t('reviewScoreHigh', {
+              score: scoreValue,
+            }),
+            'green'
+          )
+        }
       }
     }
 
@@ -153,8 +169,20 @@ export async function main(args = []) {
       }
     }
 
-    if (await confirmCommit(commitMessage, isProposed, autoConfirm)) {
-      commit(commitMessage)
+    let commitBody = ''
+    if (await confirmGenerateBody(autoConfirm)) {
+      printMessage(t('generatingBody'), 'blue')
+      commitBody = await askGeminiForCommitBody(config)
+      if (!commitBody) {
+        printMessage(t('bodyUnavailable'))
+      }
+    }
+
+    const finalCommitMessage =
+      commitMessage + (commitBody ? `\n\n${commitBody}` : '')
+
+    if (await confirmCommit(finalCommitMessage, isProposed, autoConfirm)) {
+      commit(finalCommitMessage)
       printMessage(t('commitSuccess'), 'green')
     } else {
       printMessage(t('commitCancelled'))

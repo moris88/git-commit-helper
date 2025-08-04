@@ -36,7 +36,7 @@ async function callGemini(prompt, config) {
 }
 
 export async function askGeminiForReview(config) {
-  const diff = getDiff()
+  const diff = getDiff(true)
   if (!diff) {
     console.log(chalk.yellow(t('noStagedChanges')))
     process.exit(1)
@@ -51,7 +51,7 @@ export async function askGeminiForReview(config) {
 }
 
 export async function askGeminiForGeneratedCommitMessage(config) {
-  const diff = getDiff()
+  const diff = getDiff(true)
   if (!diff) {
     console.log(chalk.yellow(t('noStagedChanges')))
     process.exit(1)
@@ -62,4 +62,29 @@ export async function askGeminiForGeneratedCommitMessage(config) {
     .replace('{diff}', diff)
 
   return callGemini(prompt, config)
+}
+
+export async function askGeminiForCommitBody(config) {
+  const diff = getDiff(true)
+  if (!diff) {
+    return null
+  }
+  const bodyPromptTemplate = getPrompt('commit-body')
+  const prompt = bodyPromptTemplate.replace('{diff}', diff)
+
+  return callGemini(prompt, config)
+}
+
+export async function askGeminiForBranchName(config) {
+  const diff = getDiff(false) // Get unstaged changes
+  if (!diff) {
+    return null
+  }
+  const branchPromptTemplate = getPrompt('branch')
+  const prompt = branchPromptTemplate.replace('{diff}', diff)
+
+  const branchName = await callGemini(prompt, config)
+  return branchName
+    ? branchName.trim().replace(/\s+/g, '-').toLowerCase()
+    : null
 }

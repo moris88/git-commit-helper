@@ -1,0 +1,12 @@
+Based on the following diff, generate a detailed commit body.
+
+The body should:
+- Be in English.
+- Explain the "why" behind the changes, not just the "what".
+- Use bullet points for lists of changes if applicable.
+- Not include the commit subject/title line.
+
+Return ONLY the commit body.
+
+Diff:
+{diff}

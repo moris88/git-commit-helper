@@ -1,11 +1,17 @@
 import { execSync } from 'child_process'
 import chalk from 'chalk'
 import inquirer from 'inquirer'
+import fs from 'fs'
+import path from 'path'
+import os from 'os'
 import { t } from './i18n.js'
+import { askGeminiForBranchName } from './gemini.js'
 
-export function getDiff() {
+
+export function getDiff(cached = true) {
   try {
-    return execSync('git diff --cached').toString()
+    const command = cached ? 'git diff --cached' : 'git diff'
+    return execSync(command).toString()
   } catch (error) {
     console.error(chalk.red(t('getDiffError')), error.message)
     return null
@@ -48,18 +54,41 @@ export function getCurrentBranch() {
   }
 }
 
-export async function checkBranchAndMaybeCreateNew() {
+export async function checkBranchAndMaybeCreateNew(config, autoConfirm = false) {
   const forbiddenBranches = ['main', 'master', 'dev']
   const currentBranch = getCurrentBranch()
 
   if (forbiddenBranches.includes(currentBranch)) {
     console.log(chalk.red(t('protectedBranch', { branch: currentBranch })))
 
+    const suggestedBranchName = await askGeminiForBranchName(config)
+
+    if (autoConfirm) {
+      if (suggestedBranchName) {
+        try {
+          execSync(`git checkout -b ${suggestedBranchName}`, {
+            stdio: 'inherit',
+          })
+          console.log(
+            chalk.green(t('branchCreated', { branch: suggestedBranchName }))
+          )
+        } catch (err) {
+          console.error(chalk.red(t('branchCreationError')), err.message)
+          process.exit(1)
+        }
+        return
+      } else {
+        console.error(chalk.red(t('cannotSuggestBranchName')))
+        process.exit(1)
+      }
+    }
+
     const { newBranchName } = await inquirer.prompt([
       {
         type: 'input',
         name: 'newBranchName',
         message: t('newBranchName'),
+        default: suggestedBranchName,
         validate: (input) =>
           /^[\w\-\/]+$/.test(input) || t('invalidBranchName'),
       },
@@ -84,9 +113,15 @@ export function stageFiles(files) {
 }
 
 export function commit(message) {
-  execSync(`git commit -m "${message.replace(/"/g, '\\"')}"`, {
-    stdio: 'inherit',
-  })
+  const tempFile = path.join(os.tmpdir(), 'gch-commit-msg.txt')
+  fs.writeFileSync(tempFile, message)
+  try {
+    execSync(`git commit -F "${tempFile}"`, {
+      stdio: 'inherit',
+    })
+  } finally {
+    fs.unlinkSync(tempFile) // Clean up the temp file
+  }
 }
 
 export function push(branch) {
