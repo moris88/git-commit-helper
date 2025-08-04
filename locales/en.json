@@ -1,5 +1,6 @@
 {
   "error": "Error",
+  "welcomeMessage": "Welcome to The Git Commit Helper! 🎉\nThis tool helps you create high-quality commits following Conventional Commits best practices and Gemini AI.\nBy Maurizio T.",
   "initialization": "Initializing configuration...",
   "configCreated": "Configuration file 'gch.config.json' created in {path}",
   "configExists": "Configuration file 'gch.config.json' already exists in {path}",
@@ -38,7 +39,8 @@
   "ensureFilesModified": "Make sure to modify or add files before committing.",
   "fileModified": "🛠️ Modified file: {file}",
   "fileAddedSuccess": "✔️​ File added successfully!",
-  "filesModified": "🛠️ Modified files ({count}):\n{files}",
+  "filesModified": "🛠️ Modified files ({count})",
+  "filesSelected": "{count} files automatically selected.",
   "selectFiles": "Select the files to add to the commit: (all selected by default)",
   "noFilesSelected": "❌ No files selected. Commit cancelled.",
   "filesAddedSuccess": "✔️​ Files added successfully!",
@@ -70,6 +72,5 @@
   "pushUpstreamSuccess": "✔️​ Push with upstream successful!",
   "pushFailed": "❌ Push failed:",
   "goodbye": "🎉 See you at the next commit! Happy coding! 🎉",
-  "diffTooLarge": "The selected changes exceed the configured limit of {maxLines} lines ({actualLines} lines). Staging aborted. Please commit smaller changes.",
-  "reviewPrompt": "CODE ANALYSIS - STRICT INSTRUCTIONS\n\n***Objective:***\nEvaluate the changes with a score from 1 to 10 ({minReviewScore}+ = pass) and provide structured feedback.\n\n***Response Rules:***\n1. Respond ONLY in plain text (NO markdown/code)\n2. Use bullet points for clarity\n3. End with \"Score: X/10\" (X = numeric score)\n\n***Evaluation Parameters:***\n• Quality:\n  - Readability (naming, formatting)\n  - Structure (logic, organization)\n  - Style (consistency, best practices)\n\n• Correctness:\n  - Functionality achieved\n  - Bugs resolved (if applicable)\n  - Edge cases considered\n\n• Maintainability:\n  - Modularity\n  - Testability\n  - Implicit documentation\n\n• Critical Issues:\n  - Obvious errors\n  - Vulnerabilities\n  - Anti-patterns\n\n***Required Format:***\n1. Quality: <concise feedback>\n2. Correctness: <concise feedback>\n3. Maintainability: <concise feedback>\n4. Issues: <list of issues or \"None\">\n\nScore: X/10\n\n***Diff to analyze:***\n{diff}\n\n***Important Note:***\nIf the diff is empty or irrelevant, respond with:\n1. Quality: No relevant changes\n2. Correctness: No relevant changes\n3. Maintainability: No relevant changes\n4. Issues: Diff not analyzable\nScore: 0/10",
-  "commitPrompt": "Generate a SINGLE commit message strictly following these rules:\n\nMANDATORY RULES:\n1. Format: <type>(<scope>)?: <description>\n2. TOTAL MAX length: 50 characters (check before responding)\n3. Language: English\n4. Structure:\n   - Type: feat, fix, docs, style, refactor, perf, test, chore, BREAKING CHANGE\n   - Optional scope (only if strictly necessary)\n   - \": \" (colon + space)\n   - Concise description in English\n\nVALID EXAMPLES (<=50 characters):\n- feat(auth): add login endpoint\n- fix: resolve header overflow\n- docs: update api examples\n\nINVALID EXAMPLES:\n- \"feat: add new login system with email validation\" (too long)\n- \"fix: bug\" (too vague)\n\nREQUEST:\nAnalyze this diff and generate ONLY the commit message (no additional comments) that:\n1. Follows the format above EXACTLY\n2. Is <=50 characters\n3. CONCISELY describes the changes\n\nDiff: {diff}"}
+  "diffTooLarge": "The selected changes exceed the configured limit of {maxLines} lines ({actualLines} lines). Staging aborted. Please commit smaller changes."
+}

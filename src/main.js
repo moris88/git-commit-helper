@@ -27,7 +27,9 @@ import {
 } from './ui.js'
 import { t } from './i18n.js'
 
-export async function main() {
+export async function main(args = []) {
+  const autoConfirm = args.includes('-y') || args.includes('--yes')
+  console.log(autoConfirm ? '--> AUTOCONFIRM!!!' : '')
   printTitle()
 
   const config = loadConfig()
@@ -52,7 +54,7 @@ export async function main() {
       process.exit(0)
     }
 
-    const selectedFiles = await selectFilesToStage(modifiedFiles)
+    const selectedFiles = await selectFilesToStage(modifiedFiles, autoConfirm)
     if (selectedFiles.length === 0) {
       printMessage(t('noFilesSelected'))
       process.exit(0)
@@ -79,8 +81,8 @@ export async function main() {
     stageFiles(selectedFiles)
     printMessage(t('filesAddedSuccess'), 'green')
 
-    if (await confirmReview()) {
-      printMessage(`\n${t('codeAnalysis')}`, 'blue')
+    if (await confirmReview(autoConfirm)) {
+      printMessage(`${t('codeAnalysis')}`, 'blue')
       const review = await askGeminiForReview(config)
 
       if (!review) {
@@ -89,7 +91,8 @@ export async function main() {
       }
 
       printMessage(`\n${t('reviewYourCode')}\n${review}`, 'blue')
-      const scoreMatch = review.match(/Score:\s*(\d+)\/10/i)
+      const scoreRegex = /Score:\s*(\d+)\/10/i
+      const scoreMatch = scoreRegex.exec(review)
 
       if (!scoreMatch) {
         printMessage(
@@ -102,7 +105,7 @@ export async function main() {
 
       const scoreValue = parseInt(scoreMatch[1], 10)
       if (scoreValue < (config.minReviewScore || 6)) {
-        if (!(await confirmProceed(scoreValue))) {
+        if (!(await confirmProceed(scoreValue, autoConfirm))) {
           process.exit(1)
         }
       } else {
@@ -130,12 +133,16 @@ export async function main() {
           message: commitMessage,
         })
       )
-      const { fixMessage } = await inquirer.prompt({
-        type: 'confirm',
-        name: 'fixMessage',
-        message: t('editCommitMessage'),
-        default: true,
-      })
+      let fixMessage = true
+      if (!autoConfirm) {
+        const answers = await inquirer.prompt({
+          type: 'confirm',
+          name: 'fixMessage',
+          message: t('editCommitMessage'),
+          default: true,
+        })
+        fixMessage = answers.fixMessage
+      }
 
       if (fixMessage) {
         commitMessage = await getEditedCommitMessage(commitMessage, config)
@@ -146,7 +153,7 @@ export async function main() {
       }
     }
 
-    if (await confirmCommit(commitMessage, isProposed)) {
+    if (await confirmCommit(commitMessage, isProposed, autoConfirm)) {
       commit(commitMessage)
       printMessage(t('commitSuccess'), 'green')
     } else {
@@ -154,7 +161,7 @@ export async function main() {
       process.exit(0)
     }
 
-    if (await confirmPush()) {
+    if (await confirmPush(autoConfirm)) {
       const currentBranch = getCurrentBranch()
       push(currentBranch)
       printMessage(t('goodbye'))
@@ -164,6 +171,13 @@ export async function main() {
       process.exit(0)
     }
   } catch (error) {
+    if (
+      error.message.includes('User force closed the prompt') ||
+      error.message.includes('Abort')
+    ) {
+      printMessage(`\n${t('goodbye')}`)
+      process.exit(0)
+    }
     // Ensure inquirer is not left hanging
     if (error.isTtyError) {
       printError("Prompt couldn't be rendered in the current environment")

@@ -1,0 +1,28 @@
+Generate a SINGLE commit message strictly following these rules:
+
+MANDATORY RULES:
+1. Format: <type>(<scope>)?: <description>
+2. TOTAL MAX length: {maxSubjectLength} characters (check before responding)
+3. Language: English
+4. Structure:
+   - Type: feat, fix, docs, style, refactor, perf, test, chore, BREAKING CHANGE
+   - Optional scope (only if strictly necessary)
+   - ": " (colon + space)
+   - Concise description in English
+
+VALID EXAMPLES (<=50 characters):
+- feat(auth): add login endpoint
+- fix: resolve header overflow
+- docs: update api examples
+
+INVALID EXAMPLES:
+- "feat: add new login system with email validation" (too long)
+- "fix: bug" (too vague)
+
+REQUEST:
+Analyze this diff and generate ONLY the commit message (no additional comments) that:
+1. Follows the format above EXACTLY
+2. Is <=50 characters
+3. CONCISELY describes the changes
+
+Diff: {diff}
