@@ -39,9 +39,6 @@ npm install --save-dev git-commit-helper-it
 You can also install it globally for easier access:
 
 ```bash
-or globally:
-
-```bash
 npm install -g git-commit-helper-it
 ```
 
