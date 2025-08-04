@@ -5,8 +5,6 @@ An intelligent CLI tool that leverages the power of Google's Gemini AI to stream
 This tool is designed for developers who want to improve their productivity and maintain high-quality standards in their projects. It operates in both **English** and **Italian**, automatically detecting your system's language.
 
 
----
-
 ## ✨ Features
 
 * **🤖 AI-Powered Commit Generation**: Automatically generates a concise **subject** and a detailed **body** for your commit message based on staged changes.
@@ -19,8 +17,6 @@ This tool is designed for developers who want to improve their productivity and 
 * **⚙️ Fully Configurable**: Customize prompts, models, and workflow rules through a simple `gch.config.json` file.
 * **-b Protected Branch Guard**: Prevents direct commits to critical branches like `main` or `master`, guiding you to create a new feature branch.
 
-
----
 
 ## 🚀 Getting Started
 
@@ -71,8 +67,6 @@ Open the configuration file and add your Gemini API key. Here is a full example 
 ```
 
 
----
-
 ## Usage
 
 To start the interactive commit process, simply run the main command from your project's root directory:
@@ -90,6 +84,7 @@ npx gch -y
 The tool will guide you through the following steps:
 
 
+
 1. **Branch Check**: If you are on a protected branch, it suggests a new branch name.
 2. **File Staging**: Asks you which modified files to stage for the commit.
 3. **Pre-Commit Hooks**: Runs any configured pre-commit commands.
@@ -99,16 +94,12 @@ The tool will guide you through the following steps:
 7. **Push Confirmation**: Asks if you want to push the changes to the remote repository.
 
 
----
-
 # Git Commit Helper con Gemini AI (Italiano)
 
 Uno strumento CLI intelligente che sfrutta la potenza di Gemini AI di Google per ottimizzare il tuo flusso di lavoro Git. Ti aiuta a creare messaggi di commit impeccabili e conformi allo standard Conventional Commits, esegue revisioni del codice basate su AI e garantisce che la tua codebase rimanga pulita e coerente.
 
 Questo strumento è pensato per gli sviluppatori che desiderano migliorare la propria produttività e mantenere standard di alta qualità nei loro progetti. Funziona sia in **inglese** che in **italiano**, rilevando automaticamente la lingua del sistema.
 
-
----
 
 ## ✨ Funzionalità
 
@@ -122,8 +113,6 @@ Questo strumento è pensato per gli sviluppatori che desiderano migliorare la pr
 * **⚙️ Completamente Configurabile**: Personalizza prompt, modelli e regole del flusso di lavoro tramite un semplice file `gch.config.json`.
 * **-b Protezione Branch Critici**: Impedisce commit diretti su branch critici come `main` o `master`, guidandoti nella creazione di un nuovo feature branch.
 
-
----
 
 ## 🚀 Come Iniziare
 
@@ -174,8 +163,6 @@ Apri il file di configurazione e aggiungi la tua API key di Gemini. Ecco un esem
 ```
 
 
----
-
 ## Utilizzo
 
 Per avviare il processo di commit interattivo, esegui semplicemente il comando principale dalla root del tuo progetto:
@@ -191,6 +178,7 @@ npx gch -y
 ```
 
 Lo strumento ti guiderà attraverso i seguenti passaggi:
+
 
 
 1. **Controllo Branch**: Se ti trovi su un branch protetto, suggerisce un nuovo nome per il branch.

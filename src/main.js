@@ -40,8 +40,13 @@ export async function main(args = []) {
     printMessage(t('ensureConfig'))
     process.exit(1)
   }
-  if (!config.geminiApiKey) {
+  if (!config.geminiApiKey && !config.geminiApiKey.trim()) {
     printError(t('apiKeyNotConfigured'))
+    printMessage(t('ensureApiKey'))
+    process.exit(1)
+  }
+  if (!config.geminiModel && !config.geminiModel.trim()) {
+    printError(t('modelNotConfigured'))
     printMessage(t('ensureApiKey'))
     process.exit(1)
   }

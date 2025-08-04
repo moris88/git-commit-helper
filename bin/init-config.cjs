@@ -6,7 +6,7 @@ const { t } = require('../src/i18n.js')
 
 const template = {
   geminiApiKey: 'your-api-key-here', // Replace with your actual Gemini API key
-  geminiModel: 'gemini-1.5-flash', // Default model for Gemini AI
+  geminiModel: 'gemini-2.5-flash', // Default model for Gemini AI
   aiReviewEnabled: true, // Enable AI review feature
   defaultCommitType: 'feat', // Default commit type for Conventional Commits
   maxSubjectLength: 50, // Maximum length of the commit subject line
