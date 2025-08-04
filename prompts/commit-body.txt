@@ -1,12 +1,22 @@
-Based on the following diff, generate a detailed commit body.
+**COMMIT BODY GENERATION - EXPLANATION FOCUS**
 
-The body should:
-- Be in English.
-- Explain the "why" behind the changes, not just the "what".
-- Use bullet points for lists of changes if applicable.
-- Not include the commit subject/title line.
+---
 
-Return ONLY the commit body.
+**🎯 OBJECTIVE**  
+Generate a detailed **commit body** that explains the intent and reasoning behind the code changes.
 
-Diff:
-{diff}
+---
+
+**📌 INSTRUCTIONS**
+
+- Language: **English only**
+- Focus on **why** the changes were made, not just what was changed
+- Provide context, motivations, or problem being solved
+- Use **bullet points** for listing related changes or grouped modifications (if applicable)
+- Do **not** include the commit subject/title line
+- Output must be the **commit body only**, with no extra commentary or formatting
+
+---
+
+**📎 DIFF TO ANALYZE**  
+`{diff}`
