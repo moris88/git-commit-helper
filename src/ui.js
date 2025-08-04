@@ -12,6 +12,7 @@ export function printTitle() {
     whitespaceBreak: true,
   })
   console.log(asciiTitle)
+  console.log(chalk.blue(`\n${t('welcomeMessage')}\n`))
   console.log(chalk.blue(`\n${t('exitMessage')}\n`))
 }
 

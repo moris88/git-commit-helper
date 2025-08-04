@@ -1,5 +1,6 @@
 {
   "error": "Errore",
+  "welcomeMessage": "Benvenuto in The Git Commit Helper! 🎉\nQuesto strumento ti aiuta a creare commit di alta qualità seguendo le best practices di Conventional Commits e Gemini AI.\nBy Maurizio T.",
   "initialization": "Inizializzazione della configurazione...",
   "configCreated": "File di configurazione 'gch.config.json' creato in {path}",
   "configExists": "Il file di configurazione 'gch.config.json' esiste già in {path}",

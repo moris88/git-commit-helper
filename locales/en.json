@@ -1,5 +1,6 @@
 {
   "error": "Error",
+  "welcomeMessage": "Welcome to The Git Commit Helper! 🎉\nThis tool helps you create high-quality commits following Conventional Commits best practices and Gemini AI.\nBy Maurizio T.",
   "initialization": "Initializing configuration...",
   "configCreated": "Configuration file 'gch.config.json' created in {path}",
   "configExists": "Configuration file 'gch.config.json' already exists in {path}",
@@ -38,12 +39,11 @@
   "ensureFilesModified": "Make sure to modify or add files before committing.",
   "fileModified": "🛠️ Modified file: {file}",
   "fileAddedSuccess": "✔️​ File added successfully!",
-  "filesModified": "🛠️ Modified files ({count}):
-{files}",
+  "filesModified": "🛠️ Modified files ({count})",
   "filesSelected": "{count} files automatically selected.",
   "selectFiles": "Select the files to add to the commit: (all selected by default)",
   "noFilesSelected": "❌ No files selected. Commit cancelled.",
-  "filesAddedSuccess": "✔️​ Files added successfully!"
+  "filesAddedSuccess": "✔️​ Files added successfully!",
   "askForReview": "Do you want a code review before proceeding?",
   "reviewUnavailable": "⚠️​ Unable to get a review",
   "reviewYourCode": "🔍 Review your code:\n",
