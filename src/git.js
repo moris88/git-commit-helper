@@ -13,35 +13,17 @@ export function getDiff() {
 }
 
 export function getModifiedFiles() {
-  const output = execSync('git status --porcelain').toString()
-  const lines = output.split('\n').filter(Boolean)
-
-  const unquotePath = (path) => {
-    if (path.startsWith('"') && path.endsWith('"')) {
-      try {
-        return JSON.parse(path)
-      } catch (e) {
-        return path.substring(1, path.length - 1)
-      }
-    }
-    return path
+  try {
+    const deleted = execSync('git ls-files --deleted').toString().trim().split('\n');
+    const modified = execSync('git ls-files --modified').toString().trim().split('\n');
+    const others = execSync('git ls-files --others --exclude-standard').toString().trim().split('\n');
+    
+    const allFiles = [...deleted, ...modified, ...others].filter(Boolean);
+    return [...new Set(allFiles)]; // Remove duplicates
+  } catch (error) {
+    console.error(chalk.red(t('getDiffError')), error.message)
+    return [];
   }
-
-  const files = lines
-    .map((line) => {
-      const status = line.substring(0, 2)
-      const pathPart = line.substring(3)
-
-      if (status.startsWith('R')) {
-        const parts = pathPart.split(' -> ')
-        return unquotePath(parts[1].trim())
-      }
-
-      return unquotePath(pathPart.trim())
-    })
-    .filter(Boolean)
-
-  return files
 }
 
 export function getDiffForFiles(files) {

@@ -29,7 +29,7 @@ import { t } from './i18n.js'
 
 export async function main(args = []) {
   const autoConfirm = args.includes('-y') || args.includes('--yes')
-  console.log(autoConfirm)
+  console.log(autoConfirm ? '--> AUTOCONFIRM!!!' : '')
   printTitle()
 
   const config = loadConfig()
@@ -171,6 +171,13 @@ export async function main(args = []) {
       process.exit(0)
     }
   } catch (error) {
+    if (
+      error.message.includes('User force closed the prompt') ||
+      error.message.includes('Abort')
+    ) {
+      printMessage(`\n${t('goodbye')}`)
+      process.exit(0)
+    }
     // Ensure inquirer is not left hanging
     if (error.isTtyError) {
       printError("Prompt couldn't be rendered in the current environment")
