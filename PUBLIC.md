@@ -28,7 +28,9 @@ To test the package locally without publishing, you can create a symbolic link. 
 npm link
 ```
 
+
 ---
+
 
 ---
 
@@ -61,3 +63,5 @@ Per testare il pacchetto in locale senza pubblicarlo, puoi creare un link simbol
 ```bash
 npm link
 ```
+
+
