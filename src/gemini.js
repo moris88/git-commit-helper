@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai'
 import chalk from 'chalk'
 import fs from 'fs'
+import { fileURLToPath } from 'url'
 import { resolve, dirname } from 'path'
 import { getDiff } from './git.js'
 import { t } from './i18n.js'
