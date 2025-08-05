@@ -1,12 +1,15 @@
 import { GoogleGenAI } from '@google/genai'
 import chalk from 'chalk'
 import fs from 'fs'
-import path from 'path'
+import { resolve, dirname } from 'path'
 import { getDiff } from './git.js'
 import { t } from './i18n.js'
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
 function getPrompt(name) {
-  const promptPath = path.join(__dirname, 'prompts', `${name}.txt`)
+  const promptPath = resolve(__dirname, `../prompts/${name}.txt`)
   return fs.readFileSync(promptPath, 'utf-8')
 }
 
