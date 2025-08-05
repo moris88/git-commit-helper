@@ -6,7 +6,7 @@ import { getDiff } from './git.js'
 import { t } from './i18n.js'
 
 function getPrompt(name) {
-  const promptPath = path.join(process.cwd(), 'prompts', `${name}.txt`)
+  const promptPath = path.join(__dirname, 'prompts', `${name}.txt`)
   return fs.readFileSync(promptPath, 'utf-8')
 }
 
