@@ -89,5 +89,8 @@
   "undoFailed": "❌ Impossibile annullare l'ultimo commit.",
   "selectBranchToCheckout": "Seleziona il branch su cui spostarti:",
   "checkoutSuccess": "✔️ Spostato sul branch '{branch}' con successo!",
-  "checkoutFailed": "❌ Impossibile spostarsi sul branch '{branch}'."
+  "checkoutFailed": "❌ Impossibile spostarsi sul branch '{branch}'.",
+  "nothingToPush": "❌ Non ci sono commit da pushare.",
+  "pushCancelled": "❌ Push annullato.",
+  "pushError": "❌ Errore durante il push: "
 }

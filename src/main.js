@@ -17,6 +17,7 @@ import {
   isLastCommitPushed,
   undoLastCommit,
   checkoutBranch,
+  hasCommitsToPush,
 } from './git.js'
 import {
   askGeminiForReview,
@@ -169,19 +170,18 @@ async function runCommitLogic(autoConfirm) {
 
 // Logic for the --push command
 async function runPushLogic(autoConfirm) {
-  const config = await initialize()
-  const stagedFiles = await handleFileStaging(config, autoConfirm)
-  if (!stagedFiles) return
-
-  const committed = await handleCommit(config, autoConfirm)
-  if (!committed) return
-
-  if (await confirmPush(autoConfirm)) {
-    const currentBranch = getCurrentBranch()
-    push(currentBranch)
-    printMessage(t('goodbye'))
+  await initialize()
+  if (hasCommitsToPush()) {
+    if (await confirmPush(autoConfirm)) {
+      const currentBranch = getCurrentBranch()
+      push(currentBranch)
+      printMessage(t('goodbye'))
+    } else {
+      printMessage(t('commitCancelled'))
+    }
   } else {
-    printMessage(t('commitCancelled'))
+    printMessage(t('nothingToPush'), 'yellow')
+    printMessage(t('pushCancelled'), 'yellow')
   }
 }
 
@@ -334,6 +334,9 @@ export async function main(args) {
     .parseAsync()
 
   const { _, yes } = argv
+  if (yes) {
+    console.log(chalk.yellow('Running in auto-confirm mode'))
+  }
   const command = _[0]
 
   try {

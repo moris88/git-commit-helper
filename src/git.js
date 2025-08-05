@@ -47,7 +47,7 @@ export function getDiffForFiles(files) {
 
 export function getLocalBranches() {
     try {
-        return execSync('git branch').toString();
+        return execSync('git branch').toString()
     } catch (error) {
         console.error(chalk.red('Error fetching local branches:'), error.message);
         return null;
@@ -215,4 +215,24 @@ export function checkoutBranch(branch) {
         console.error(chalk.red(t('checkoutFailed', { branch })), error.message);
         process.exit(1);
     }
+}
+
+export function hasCommitsToPush() {
+  try {
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+      encoding: 'utf-8',
+    }).trim();
+
+    const count = parseInt(
+      execSync(`git rev-list --count origin/${branch}..${branch}`, {
+        encoding: 'utf-8',
+      }).trim(),
+      10
+    );
+
+    return count > 0;
+  } catch (error) {
+    console.error(chalk.red(t('pushError', { branch })), error.message)
+    return false;
+  }
 }

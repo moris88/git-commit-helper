@@ -89,5 +89,8 @@
   "undoFailed": "❌ Failed to undo the last commit.",
   "selectBranchToCheckout": "Select the branch to checkout:",
   "checkoutSuccess": "✔️ Switched to branch '{branch}' successfully!",
-  "checkoutFailed": "❌ Failed to switch to branch '{branch}'."
+  "checkoutFailed": "❌ Failed to switch to branch '{branch}'.",
+  "nothingToPush": "❌ No commits to push.",
+  "pushCancelled": "❌ Push cancelled.",
+  "pushError": "❌ Errore durante il push: "
 }
