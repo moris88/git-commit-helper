@@ -17,7 +17,7 @@ export function printTitle() {
 }
 
 export function validateMessage(msg, config) {
-  const subject = msg.trim()
+  const subject = msg.trim().split('\n')[0] // Considera solo la prima riga
 
   if (subject.length > config.maxSubjectLength) {
     console.log(
@@ -31,14 +31,33 @@ export function validateMessage(msg, config) {
     return false
   }
 
-  // Regex to validate conventional commit format, including optional scope and breaking change indicator (!)
-  const conventionalCommitRegex =
-    /^(feat|fix|docs|style|refactor|perf|test|chore|breaking)(?:\(.*\))?!?: .*$/
+  // Tipi validi secondo Conventional Commits
+  const validTypes = [
+    'feat',
+    'fix',
+    'docs',
+    'style',
+    'refactor',
+    'perf',
+    'test',
+    'chore',
+    'build',
+    'ci',
+    'revert',
+    'wip',
+  ]
 
-  if (
-    !conventionalCommitRegex.test(subject) &&
-    !subject.startsWith('BREAKING CHANGE:')
-  ) {
+  const typePattern = validTypes.join('|')
+
+  const conventionalCommitRegex = new RegExp(
+    `^(${typePattern})(\\([\\w\\-]+\\))?(!)?: .+`
+  )
+
+  const isValid =
+    conventionalCommitRegex.test(subject) ||
+    msg.trim().startsWith('BREAKING CHANGE:')
+
+  if (!isValid) {
     console.log(chalk.red(t('invalidFormat')))
     return false
   }
@@ -189,4 +208,28 @@ export function printMessage(msg, color = 'yellow') {
 
 export function printError(msg) {
   console.error(chalk.red(msg))
+}
+
+export async function selectBranchForRebase(branches) {
+    const { branch } = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'branch',
+            message: t('selectBranchForRebase'),
+            choices: branches,
+        },
+    ]);
+    return branch;
+}
+
+export async function selectBranchToCheckout(branches) {
+    const { branch } = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'branch',
+            message: t('selectBranchToCheckout'),
+            choices: branches,
+        },
+    ]);
+    return branch;
 }

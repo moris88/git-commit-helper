@@ -9,7 +9,7 @@ const template = {
   geminiModel: 'gemini-2.5-flash', // Default model for Gemini AI
   aiReviewEnabled: true, // Enable AI review feature
   defaultCommitType: 'feat', // Default commit type for Conventional Commits
-  maxSubjectLength: 50, // Maximum length of the commit subject line
+  maxSubjectLength: 60, // Maximum length of the commit subject line
   maxDiffLines: 3500, // Maximum number of lines in the diff for AI reviews
   minReviewScore: 6, // Minimum review score for AI reviews
   preCommitCommands: [

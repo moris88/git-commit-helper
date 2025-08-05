@@ -32,6 +32,7 @@
   "invalidBranchName": "Il nome del branch non è valido",
   "cannotSuggestBranchName": "Impossibile suggerire un nome per il branch. Nessuna modifica rilevata.",
   "branchCreated": "✔️ Nuovo branch '{branch}' creato e attivato.",
+  "branchCreatedSuccess": "✔️ Branch creato con successo!",
   "branchCreationError": "❌ Errore nella creazione del branch:",
   "currentBranch": "✅ Branch corrente: {branch}",
   "mainTitle": "The Git Commit Helper IT",
@@ -79,5 +80,14 @@
   "pushUpstreamSuccess": "✔️​ Push con upstream eseguito con successo!",
   "pushFailed": "❌ Push fallito:",
   "goodbye": "🎉 Ci sentiamo al prossimo commit! Buon sviluppo! 🎉",
-  "diffTooLarge": "Le modifiche selezionate superano il limite configurato di {maxLines} righe ({actualLines} righe). Staging annullato. Per favore, crea commit più piccoli."
+  "diffTooLarge": "Le modifiche selezionate superano il limite configurato di {maxLines} righe ({actualLines} righe). Staging annullato. Per favore, crea commit più piccoli.",
+  "selectBranchForRebase": "Seleziona il branch su cui eseguire il rebase:",
+  "rebaseSuccess": "✔️ Rebase su '{branch}' eseguito con successo!",
+  "rebaseFailed": "❌ Rebase su '{branch}' fallito.",
+  "undoSuccess": "✔️ Ultimo commit annullato con successo. Le modifiche sono state spostate nella directory di lavoro.",
+  "nothingToUndo": "❌ Nessun commit locale da annullare. L'ultimo commit è già stato pushato.",
+  "undoFailed": "❌ Impossibile annullare l'ultimo commit.",
+  "selectBranchToCheckout": "Seleziona il branch su cui spostarti:",
+  "checkoutSuccess": "✔️ Spostato sul branch '{branch}' con successo!",
+  "checkoutFailed": "❌ Impossibile spostarsi sul branch '{branch}'."
 }

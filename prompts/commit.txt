@@ -22,6 +22,8 @@ Generate a **SINGLE** commit message that strictly adheres to the following inst
 - `feat(auth): add login endpoint`  
 - `fix: resolve header overflow`  
 - `docs: update api examples`
+- `fix!: remove support for legacy auth tokens`
+- `BREAKING CHANGE: change user ID format from number to UUID`
 
 **❌ INVALID EXAMPLES**  
 - `"feat: add new login system with email validation and ..."` (too long)  

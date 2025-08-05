@@ -45,6 +45,15 @@ export function getDiffForFiles(files) {
   }
 }
 
+export function getLocalBranches() {
+    try {
+        return execSync('git branch').toString();
+    } catch (error) {
+        console.error(chalk.red('Error fetching local branches:'), error.message);
+        return null;
+    }
+}
+
 export function getCurrentBranch() {
   try {
     return execSync('git rev-parse --abbrev-ref HEAD').toString().trim()
@@ -60,6 +69,12 @@ export async function checkBranchAndMaybeCreateNew(config, autoConfirm = false) 
 
   if (forbiddenBranches.includes(currentBranch)) {
     console.log(chalk.red(t('protectedBranch', { branch: currentBranch })))
+
+    const branches = getLocalBranches();
+    if (branches) {
+        console.log(chalk.blue('Local branches:'));
+        console.log(branches);
+    }
 
     const suggestedBranchName = await askGeminiForBranchName(config)
 
@@ -90,7 +105,7 @@ export async function checkBranchAndMaybeCreateNew(config, autoConfirm = false) 
         message: t('newBranchName'),
         default: suggestedBranchName,
         validate: (input) =>
-          /^[\w\-\/]+$/.test(input) || t('invalidBranchName'),
+          /^[\w\/-]+$/.test(input) || t('invalidBranchName'),
       },
     ])
 
@@ -141,4 +156,63 @@ export function push(branch) {
       process.exit(1)
     }
   }
+}
+
+export function getLatestLogs() {
+  try {
+    return execSync('git log -n 5 --pretty=format:"%h - %an, %ar : %s"').toString();
+  } catch (error) {
+    console.error(chalk.red('Error fetching git logs:'), error.message);
+    return null;
+  }
+}
+
+export function getBranchGraph() {
+  try {
+    return execSync('git log --all --decorate --oneline --graph').toString();
+  } catch (error) {
+    console.error(chalk.red('Error fetching git graph:'), error.message);
+    return null;
+  }
+}
+
+export function rebase(branch) {
+  try {
+    execSync(`git rebase ${branch}`, { stdio: 'inherit' });
+    console.log(chalk.green(t('rebaseSuccess', { branch })));
+  } catch (error) {
+    console.error(chalk.red(t('rebaseFailed', { branch })), error.message);
+    process.exit(1);
+  }
+}
+
+export function isLastCommitPushed() {
+    try {
+        const localHead = execSync('git rev-parse HEAD').toString().trim();
+        const remoteHead = execSync('git rev-parse @{u}').toString().trim();
+        return localHead === remoteHead;
+    } catch (error) {
+        // This will fail if the upstream branch is not set, which means the commit can't have been pushed.
+        return false;
+    }
+}
+
+export function undoLastCommit() {
+    try {
+        execSync('git reset HEAD~1', { stdio: 'inherit' });
+        console.log(chalk.green(t('undoSuccess')));
+    } catch (error) {
+        console.error(chalk.red(t('undoFailed')), error.message);
+        process.exit(1);
+    }
+}
+
+export function checkoutBranch(branch) {
+    try {
+        execSync(`git checkout ${branch}`, { stdio: 'inherit' });
+        console.log(chalk.green(t('checkoutSuccess', { branch })));
+    } catch (error) {
+        console.error(chalk.red(t('checkoutFailed', { branch })), error.message);
+        process.exit(1);
+    }
 }

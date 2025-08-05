@@ -32,6 +32,7 @@
   "invalidBranchName": "The branch name is invalid",
   "cannotSuggestBranchName": "Could not suggest a branch name. No changes detected.",
   "branchCreated": "✔️ New branch '{branch}' created and checked out.",
+  "branchCreatedSuccess": "✔️ Branch created successfully!",
   "branchCreationError": "❌ Error creating branch:",
   "currentBranch": "✅ Current branch: {branch}",
   "mainTitle": "The Git Commit Helper",
@@ -79,5 +80,14 @@
   "pushUpstreamSuccess": "✔️​ Push with upstream successful!",
   "pushFailed": "❌ Push failed:",
   "goodbye": "🎉 See you at the next commit! Happy coding! 🎉",
-  "diffTooLarge": "The selected changes exceed the configured limit of {maxLines} lines ({actualLines} lines). Staging aborted. Please commit smaller changes."
+  "diffTooLarge": "The selected changes exceed the configured limit of {maxLines} lines ({actualLines} lines). Staging aborted. Please commit smaller changes.",
+  "selectBranchForRebase": "Select the branch to rebase onto:",
+  "rebaseSuccess": "✔️ Rebase onto '{branch}' was successful!",
+  "rebaseFailed": "❌ Rebase onto '{branch}' failed.",
+  "undoSuccess": "✔️ Last commit successfully undone. Changes have been moved to the working directory.",
+  "nothingToUndo": "❌ No local commits to undo. The last commit has already been pushed.",
+  "undoFailed": "❌ Failed to undo the last commit.",
+  "selectBranchToCheckout": "Select the branch to checkout:",
+  "checkoutSuccess": "✔️ Switched to branch '{branch}' successfully!",
+  "checkoutFailed": "❌ Failed to switch to branch '{branch}'."
 }
