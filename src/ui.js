@@ -98,12 +98,16 @@ export async function selectFilesToStage(modifiedFiles, autoConfirm = false) {
   return selectedFiles;
 }
 
-export async function confirmReview(autoConfirm = false) {
+export async function confirmReview(aiProviderName, autoConfirm = false) {
   if (autoConfirm) return true
+  const message = t('askForReview').replace(
+    '?',
+    ` ${t('withProvider')} ${chalk.yellow(aiProviderName)}?`
+  )
   const { wantReview } = await inquirer.prompt({
     type: 'confirm',
     name: 'wantReview',
-    message: t('askForReview'),
+    message,
     default: true,
   })
   return wantReview

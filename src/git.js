@@ -20,6 +20,13 @@ export function getDiff(cached = true) {
 
 export function getModifiedFiles() {
   try {
+    // Unstage all files to get a clean slate, ignoring errors if nothing is staged
+    try {
+      execSync('git restore --staged .');
+    } catch (error) {
+      // Ignore errors, as this command can fail if the staging area is empty
+    }
+
     const deleted = execSync('git ls-files --deleted').toString().trim().split('\n');
     const modified = execSync('git ls-files --modified').toString().trim().split('\n');
     const others = execSync('git ls-files --others --exclude-standard').toString().trim().split('\n');

@@ -1,34 +1,36 @@
-# Git Commit Helper with Gemini AI
+# Git Commit Helper with AI
 
-An intelligent CLI tool that leverages the power of Google's Gemini AI to streamline your Git workflow. It helps you create flawless, Conventional-Commit-compliant commit messages, performs AI-powered code reviews, and ensures your codebase remains clean and consistent.
+An intelligent CLI tool that leverages the power of multiple AI providers (Gemini, OpenAI, Ollama) to streamline your Git workflow. It helps you create flawless, Conventional-Commit-compliant commit messages, performs AI-powered code reviews, and ensures your codebase remains clean and consistent.
 
-This tool is designed for developers who want to improve their productivity and maintain high-quality standards in their projects. It operates in both **English** and **Italian**, automatically detecting your system's language.
+This tool is designed for developers who want to improve their productivity and maintain high-quality standards in their projects. It operates in both **English** and **Italian**, automatically detecting your system's language and translating AI responses when needed.
 
 
 ## ✨ Features
 
-* **🤖 AI-Powered Commit Generation**: Automatically generates a concise **subject** and a detailed **body** for your commit message based on staged changes.
-* **🌿 AI-Powered Branch Naming**: Before suggesting a new branch name, it displays a list of existing branches.
-* **🔍 AI-Powered Code Review**: Get an instant code review from Gemini AI before committing, with a quality score and detailed feedback.
-* **Interactive Rebase & Checkout**: User-friendly commands (`rebase`, `checkout`) that let you select a branch from a list.
-* **Safe Commit Undo**: The `undo` command reverts the last local commit, but only if it hasn't been pushed.
-* **Single-Action Commands**: Execute specific tasks like creating a branch (`--branch`), reviewing code (`--review`), or generating a commit (`--commit`) independently.
-* **Git Log & Graph Viewer**: Quickly view the last 5 commits (`--log`) or a decorated branch graph (`adog`).
-* **Non-Interactive Mode**: Use the `-y` or `--yes` flag to accept all suggestions automatically, perfect for scripting or quick commits.
-* **Pre-Commit Hooks**: Define custom shell commands (like `npm run lint` or `npm test`) to run before the AI review. If any command fails, the commit is aborted.
-* **🌐 Multi-language Support**: The user interface is available in both English and Italian, with automatic language detection.
-* **🤝 Conventional Commits Standard**: Enforces the Conventional Commits specification to keep your commit history organized and readable.
-* **⚙️ Fully Configurable**: Customize prompts, models, and workflow rules through a simple `gch.config.json` file.
-* **Protected Branch Guard**: Prevents direct commits to critical branches like `main` or `master`, guiding you to create a new feature branch.
+*   **🤖 Multi-AI Provider Support**: Seamlessly use **Google Gemini**, **OpenAI**, or a local **Ollama** instance. The tool automatically detects the configured provider.
+*   **🌐 Automatic Translation**: AI-generated content (reviews, commit messages) is automatically translated into Italian if the system locale is set to Italian.
+*   **🚀 Optimized Prompts**: Uses provider-specific prompts to ensure the highest quality responses, with special instructions for local models like CodeLlama to prevent formatting issues.
+*   **🌿 AI-Powered Branch Naming**: Suggests a descriptive branch name based on your un-staged changes.
+*   **🔍 AI-Powered Code Review**: Get an instant code review before committing, with a quality score and detailed feedback.
+*   **✍️ AI-Powered Commit Generation**: Automatically generates a concise **subject** and a detailed **body** for your commit message.
+*   **🛡️ Protected Branch Guard**: Prevents direct commits to critical branches (`main`, `master`, `dev`), guiding you to create a new feature branch.
+*   **⚙️ Fully Configurable**: Customize prompts, models, and workflow rules through a simple `gch.config.json` file.
+*   **훅 Pre-Commit Hooks**: Define custom shell commands (like `npm run lint` or `npm test`) to run before the AI review.
+*   **⚡ Single-Action Commands**: Execute specific tasks like creating a branch (`--branch`), reviewing code (`--review`), or generating a commit (`--commit`) independently.
+*   **👁️ Git Log & Graph Viewer**: Quickly view the last 5 commits (`--log`) or a decorated branch graph (`adog`).
+*   **🔄 Interactive Rebase & Checkout**: User-friendly commands (`rebase`, `checkout`) that let you select a branch from a list.
+*   **↩️ Safe Commit Undo**: The `undo` command reverts the last local commit, but only if it hasn't been pushed.
+*   **🤫 Non-Interactive Mode**: Use the `-y` or `--yes` flag to accept all suggestions automatically, perfect for scripting.
+*   **🤝 Conventional Commits Standard**: Enforces the Conventional Commits specification to keep your commit history organized and readable.
 
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-* Node.js (v18 or higher)
-* Git
-* A Google Gemini API Key ([get one here](https://ai.google.dev/))
+*   Node.js (v18 or higher)
+*   Git
+*   An API Key for your chosen provider (Gemini or OpenAI) or a running Ollama instance.
 
 ### Installation
 
@@ -52,12 +54,22 @@ This will create a `gch.config.json` file in your project's root directory. To u
 gch-init --global
 ```
 
-Open the configuration file and add your Gemini API key. Here is a full example of the available options:
+Open the configuration file and add the keys for your desired AI provider. The tool will automatically use the first valid configuration it finds.
+
+Here is a full example showing all available options:
 
 ```json
 {
-  "geminiApiKey": "your-api-key-here",
+  // --- Provider Settings (add only one set of credentials) ---
+  "geminiApiKey": "your-gemini-api-key",
   "geminiModel": "gemini-1.5-flash",
+
+  "openaiApiKey": "your-openai-api-key",
+  "openaiModel": "gpt-4o-mini",
+
+  "ollamaModel": "codellama", // The name of the model pulled in Ollama
+
+  // --- Workflow Settings ---
   "aiReviewEnabled": true,
   "defaultCommitType": "feat",
   "maxSubjectLength": 60,
@@ -84,13 +96,13 @@ gch
 ```
 
 The tool will guide you through the following steps:
-1. **Branch Check**: If you are on a protected branch, it displays the list of local branches and suggests a new branch name.
-2. **File Staging**: Asks you which modified files to stage for the commit.
-3. **Pre-Commit Hooks**: Runs any configured pre-commit commands.
-4. **Code Review (Optional)**: Performs an AI-powered code review of your changes.
-5. **Commit Message Generation**: Generates a subject and, optionally, a detailed body for the commit message.
-6. **Commit Confirmation**: Shows you the final message and asks for confirmation.
-7. **Push Confirmation**: Asks if you want to push the changes to the remote repository.
+1.  **Branch Check**: If you are on a protected branch, it suggests a new branch name.
+2.  **File Staging**: Asks you which modified files to stage for the commit.
+3.  **Pre-Commit Hooks**: Runs any configured pre-commit commands.
+4.  **Code Review (Optional)**: Performs an AI-powered code review of your changes.
+5.  **Commit Message Generation**: Generates a subject and, optionally, a detailed body for the commit message.
+6.  **Commit Confirmation**: Shows you the final message and asks for confirmation.
+7.  **Push Confirmation**: Asks if you want to push the changes to the remote repository.
 
 For a fully automated run, use the `-y` or `--yes` flag:
 
@@ -100,70 +112,56 @@ gch -y
 
 ### Single-Action Commands
 
-You can also run specific parts of the workflow independently. The commands are sequential: `push` includes `commit`, and `commit` includes `review`.
+You can also run specific parts of the workflow independently.
 
-*   `gch --branch`
-    Suggests and creates a new branch. This command is independent.
+*   `gch --branch`: Suggests and creates a new branch.
+*   `gch --review`: Stages files and performs an AI code review.
+*   `gch --commit`: Stages files and generates a commit message.
+*   `gch --push`: Stages, commits, and pushes the current branch.
+*   `gch --log`: Displays the last 5 commits.
+*   `gch adog`: Displays a decorated graph of all branches.
+*   `gch rebase`: Starts an interactive rebase process.
+*   `gch undo`: Undoes the last local commit.
+*   `gch checkout`: Starts an interactive process to switch branches.
 
-*   `gch --review`
-    **Stages files** and performs an AI code review.
+The `-y` or `--yes` flag can be combined with any command to skip interactive prompts (e.g., `gch --commit -y`).
 
-*   `gch --commit`
-    **Stages files** and generates a commit message.
+---
+---
 
-*   `gch --push`
-    **Stages files**, **generates a commit**, and then pushes the current branch to the remote.
+# Git Commit Helper con AI (Italiano)
 
-*   `gch --log`
-    Displays the last 5 commits.
+Uno strumento CLI intelligente che sfrutta la potenza di diversi provider AI (Gemini, OpenAI, Ollama) per ottimizzare il tuo flusso di lavoro Git. Ti aiuta a creare messaggi di commit impeccabili e conformi allo standard Conventional Commits, esegue revisioni del codice basate su AI e garantisce che la tua codebase rimanga pulita e coerente.
 
-*   `gch adog`
-    Displays a decorated graph of all branches.
-
-*   `gch rebase`
-    Starts an interactive rebase process, allowing you to select a branch to rebase onto.
-
-*   `gch undo`
-    Undoes the last local commit, moving the changes back to the working directory. Fails safely if the commit has been pushed.
-
-*   `gch checkout`
-    Starts an interactive process to switch to another local branch.
-
-The `-y` or `--yes` flag can be combined with any command to skip interactive prompts, for example:
-`gch --commit -y`
-
-
-# Git Commit Helper con Gemini AI (Italiano)
-
-Uno strumento CLI intelligente che sfrutta la potenza di Gemini AI di Google per ottimizzare il tuo flusso di lavoro Git. Ti aiuta a creare messaggi di commit impeccabili e conformi allo standard Conventional Commits, esegue revisioni del codice basate su AI e garantisce che la tua codebase rimanga pulita e coerente.
-
-Questo strumento è pensato per gli sviluppatori che desiderano migliorare la propria produttività e mantenere standard di alta qualità nei loro progetti. Funziona sia in **inglese** che in **italiano**, rilevando automaticamente la lingua del sistema.
+Questo strumento è pensato per gli sviluppatori che desiderano migliorare la propria produttività e mantenere standard di alta qualità nei loro progetti. Funziona sia in **inglese** che in **italiano**, rilevando automaticamente la lingua del sistema e traducendo le risposte dell'AI quando necessario.
 
 
 ## ✨ Funzionalità
 
-* **🤖 Generazione Commit AI**: Genera automaticamente un **soggetto** conciso e un **corpo** dettagliato per il tuo messaggio di commit, basandosi sulle modifiche in staging.
-* **🌿 Nomi Branch AI**: Prima di suggerire un nuovo nome per il branch, visualizza un elenco dei branch esistenti.
-* **🔍 Code Review AI**: Ottieni una revisione istantanea del codice da Gemini AI prima di committare, con un punteggio di qualità e un feedback dettagliato.
-* **Rebase e Checkout Interattivi**: Comandi intuitivi (`rebase`, `checkout`) che ti permettono di selezionare un branch da un elenco.
-* **Annullamento Sicuro del Commit**: Il comando `undo` annulla l'ultimo commit locale, ma solo se non è stato ancora pushato.
-* **Comandi Singoli**: Esegui operazioni specifiche in modo indipendente, come la creazione di un branch (`--branch`), la revisione del codice (`--review`) o la generazione di un commit (`--commit`).
-* **Visualizzatore Log e Grafico Git**: Visualizza rapidamente gli ultimi 5 commit (`--log`) o un grafico decorato dei branch (`adog`).
-* **Modalità Non Interattiva**: Usa il flag `-y` o `--yes` per accettare automaticamente tutti i suggerimenti, ideale per script o commit veloci.
-* **Hook Pre-Commit**: Definisci comandi shell personalizzati (come `npm run lint` o `npm test`) da eseguire prima della revisione AI. Se un comando fallisce, il commit viene annullato.
-* **🌐 Supporto Multilingua**: L'interfaccia utente è disponibile sia in inglese che in italiano, con rilevamento automatico della lingua.
-* **🤝 Standard Conventional Commits**: Impone la specifica Conventional Commits per mantenere la cronologia dei commit organizzata e leggibile.
-* **⚙️ Completamente Configurabile**: Personalizza prompt, modelli e regole del flusso di lavoro tramite un semplice file `gch.config.json`.
-* **Protezione Branch Critici**: Impedisce commit diretti su branch critici come `main` o `master`, guidandoti nella creazione di un nuovo feature branch.
+*   **🤖 Supporto Multi-AI Provider**: Usa senza problemi **Google Gemini**, **OpenAI** o un'istanza locale di **Ollama**. Lo strumento rileva automaticamente il provider configurato.
+*   **🌐 Traduzione Automatica**: Il contenuto generato dall'AI (revisioni, messaggi di commit) viene tradotto automaticamente in italiano se la lingua del sistema è impostata su italiano.
+*   **🚀 Prompt Ottimizzati**: Utilizza prompt specifici per ogni provider per garantire la massima qualità delle risposte, con istruzioni speciali per modelli locali come CodeLlama per prevenire problemi di formattazione.
+*   **🌿 Nomi Branch AI**: Suggerisce un nome di branch descrittivo basato sulle modifiche non ancora in staging.
+*   **🔍 Code Review AI**: Ottieni una revisione istantanea del codice prima di committare, con un punteggio di qualità e un feedback dettagliato.
+*   **✍️ Generazione Commit AI**: Genera automaticamente un **soggetto** conciso e un **corpo** dettagliato per il tuo messaggio di commit.
+*   **🛡️ Protezione Branch Critici**: Impedisce commit diretti su branch critici (`main`, `master`, `dev`), guidandoti nella creazione di un nuovo feature branch.
+*   **⚙️ Completamente Configurabile**: Personalizza prompt, modelli e regole del flusso di lavoro tramite un semplice file `gch.config.json`.
+*   **훅 Hook Pre-Commit**: Definisci comandi shell personalizzati (come `npm run lint` o `npm test`) da eseguire prima della revisione AI.
+*   **⚡ Comandi Singoli**: Esegui operazioni specifiche in modo indipendente, come la creazione di un branch (`--branch`), la revisione del codice (`--review`) o la generazione di un commit (`--commit`).
+*   **👁️ Visualizzatore Log e Grafico Git**: Visualizza rapidamente gli ultimi 5 commit (`--log`) o un grafico decorato dei branch (`adog`).
+*   **🔄 Rebase e Checkout Interattivi**: Comandi intuitivi (`rebase`, `checkout`) che ti permettono di selezionare un branch da un elenco.
+*   **↩️ Annullamento Sicuro del Commit**: Il comando `undo` annulla l'ultimo commit locale, ma solo se non è stato ancora pushato.
+*   **🤫 Modalità Non Interattiva**: Usa il flag `-y` o `--yes` per accettare automaticamente tutti i suggerimenti, ideale per gli script.
+*   **🤝 Standard Conventional Commits**: Impone la specifica Conventional Commits per mantenere la cronologia dei commit organizzata e leggibile.
 
 
 ## 🚀 Come Iniziare
 
 ### Prerequisiti
 
-* Node.js (v18 o superiore)
-* Git
-* Una API Key di Google Gemini ([ottienila qui](https://ai.google.dev/))
+*   Node.js (v18 o superiore)
+*   Git
+*   Una API Key per il provider scelto (Gemini o OpenAI) o un'istanza di Ollama in esecuzione.
 
 ### Installazione
 
@@ -187,12 +185,22 @@ Questo creerà un file `gch.config.json` nella directory principale del tuo prog
 gch-init --global
 ```
 
-Apri il file di configurazione e aggiungi la tua API key di Gemini. Ecco un esempio completo delle opzioni disponibili:
+Apri il file di configurazione e aggiungi le chiavi per il provider AI che desideri utilizzare. Lo strumento utilizzerà automaticamente la prima configurazione valida che trova.
+
+Ecco un esempio completo che mostra tutte le opzioni disponibili:
 
 ```json
 {
-  "geminiApiKey": "la-tua-api-key-qui",
+  // --- Impostazioni Provider (aggiungi solo un set di credenziali) ---
+  "geminiApiKey": "la-tua-api-key-gemini",
   "geminiModel": "gemini-1.5-flash",
+
+  "openaiApiKey": "la-tua-api-key-openai",
+  "openaiModel": "gpt-4o-mini",
+
+  "ollamaModel": "codellama", // Il nome del modello scaricato in Ollama
+
+  // --- Impostazioni Flusso di Lavoro ---
   "aiReviewEnabled": true,
   "defaultCommitType": "feat",
   "maxSubjectLength": 60,
@@ -219,13 +227,13 @@ gch
 ```
 
 Lo strumento ti guiderà attraverso i seguenti passaggi:
-1. **Controllo Branch**: Se ti trovi su un branch protetto, visualizza l'elenco dei branch locali e suggerisce un nuovo nome per il branch.
-2. **Staging dei File**: Ti chiede quali file modificati mettere in staging per il commit.
-3. **Hook Pre-Commit**: Esegue i comandi di pre-commit configurati.
-4. **Code Review (Opzionale)**: Esegue una revisione del codice delle tue modifiche tramite AI.
-5. **Generazione Messaggio di Commit**: Genera un soggetto e, opzionalmente, un corpo dettagliato per il messaggio.
-6. **Conferma Commit**: Ti mostra il messaggio finale e chiede conferma.
-7. **Conferma Push**: Ti chiede se desideri inviare le modifiche al repository remoto.
+1.  **Controllo Branch**: Se ti trovi su un branch protetto, suggerisce un nuovo nome per il branch.
+2.  **Staging dei File**: Ti chiede quali file modificati mettere in staging per il commit.
+3.  **Hook Pre-Commit**: Esegue i comandi di pre-commit configurati.
+4.  **Code Review (Opzionale)**: Esegue una revisione del codice delle tue modifiche tramite AI.
+5.  **Generazione Messaggio di Commit**: Genera un soggetto e, opzionalmente, un corpo dettagliato per il messaggio.
+6.  **Conferma Commit**: Ti mostra il messaggio finale e chiede conferma.
+7.  **Conferma Push**: Ti chiede se desideri inviare le modifiche al repository remoto.
 
 Per un'esecuzione completamente automatizzata, usa il flag `-y` o `--yes`:
 
@@ -235,34 +243,16 @@ gch -y
 
 ### Comandi per Operazione Singola
 
-Puoi anche eseguire parti specifiche del flusso di lavoro in modo indipendente. I comandi sono sequenziali: `push` include `commit`, e `commit` include `review`.
+Puoi anche eseguire parti specifiche del flusso di lavoro in modo indipendente.
 
-*   `gch --branch`
-    Suggerisce e crea un nuovo branch. Questo comando è indipendente.
+*   `gch --branch`: Suggerisce e crea un nuovo branch.
+*   `gch --review`: Esegue lo staging dei file ed esegue una code review AI.
+*   `gch --commit`: Esegue lo staging dei file e genera un messaggio di commit.
+*   `gch --push`: Esegue staging, commit e push del branch corrente.
+*   `gch --log`: Visualizza gli ultimi 5 commit.
+*   `gch adog`: Visualizza un grafico decorato di tutti i branch.
+*   `gch rebase`: Avvia un processo di rebase interattivo.
+*   `gch undo`: Annulla l'ultimo commit locale.
+*   `gch checkout`: Avvia un processo interattivo per cambiare branch.
 
-*   `gch --review`
-    **Esegue lo staging dei file** ed esegue una code review AI.
-
-*   `gch --commit`
-    **Esegue lo staging dei file** e genera un messaggio di commit.
-
-*   `gch --push`
-    **Esegue lo staging dei file**, **genera un commit** e infine esegue il push del branch corrente sul repository remoto.
-
-*   `gch --log`
-    Visualizza gli ultimi 5 commit.
-
-*   `gch adog`
-    Visualizza un grafico decorato di tutti i branch.
-
-*   `gch rebase`
-    Avvia un processo di rebase interattivo, permettendoti di selezionare un branch su cui eseguire il rebase.
-
-*   `gch undo`
-    Annulla l'ultimo commit locale, spostando le modifiche nella directory di lavoro. Fallisce in modo sicuro se il commit è già stato pushato.
-
-*   `gch checkout`
-    Avvia un processo interattivo per spostarsi su un altro branch locale.
-
-The `-y` or `--yes` flag can be combined with any command to skip interactive prompts, for example:
-`gch --commit -y`
+Il flag `-y` o `--yes` può essere combinato con qualsiasi comando per saltare le richieste interattive (es. `gch --commit -y`).

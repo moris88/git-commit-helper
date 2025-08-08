@@ -3,3 +3,5 @@
 *.json  eol=lf
 *.ts    eol=lf
 *.tsx   eol=lf
+*.txt   eol=lf
+*.cjs   eol=lf

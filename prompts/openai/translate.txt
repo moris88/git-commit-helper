@@ -1,0 +1,6 @@
+Translate the following text to Italian. Respond ONLY with the translated text, without any extra comments, explanations, or markdown formatting.
+
+Text to translate:
+---
+{text}
+---

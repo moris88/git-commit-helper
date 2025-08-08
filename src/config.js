@@ -8,10 +8,25 @@ export function loadConfig() {
   const localConfigPath = resolve(process.cwd(), 'gch.config.json')
   const globalConfigPath = resolve(homedir(), '.gch.config.json')
   if (existsSync(localConfigPath)) {
+    console.log(t('localConfigFound'))
     return JSON.parse(readFileSync(localConfigPath, 'utf-8'))
   }
   if (existsSync(globalConfigPath)) {
+    console.log(t('globalConfigFound'))
     return JSON.parse(readFileSync(globalConfigPath, 'utf-8'))
+  }
+  return null
+}
+
+export function typeOfAI(config) {
+  if (config.geminiApiKey && config.geminiModel) {
+    return 'gemini'
+  }
+  if (config.openaiApiKey && config.openaiModel) {
+    return 'openai'
+  }
+  if (config.ollamaModel) {
+    return 'ollama'
   }
   return null
 }
@@ -28,10 +43,6 @@ export const COMMIT_TYPES = [
   { name: 'chore', description: t('commitTypeChore') },
   {
     name: 'BREAKING CHANGE',
-    description: t('commitTypeBreaking'),
-  },
-  {
-    name: 'breaking',
     description: t('commitTypeBreaking'),
   },
 ]

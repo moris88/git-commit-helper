@@ -1,0 +1,22 @@
+**COMMIT BODY GENERATION - EXPLANATION FOCUS**
+
+---
+
+**🎯 OBJECTIVE**  
+Generate a detailed **commit body** that explains the intent and reasoning behind the code changes.
+
+---
+
+**📌 INSTRUCTIONS**
+
+- Language: **English only**
+- Focus on **why** the changes were made, not just what was changed
+- Provide context, motivations, or problem being solved
+- Use **bullet points** for listing related changes or grouped modifications (if applicable)
+- Do **not** include the commit subject/title line
+- Output must be the **commit body only**, with no extra commentary or formatting
+
+---
+
+**📎 DIFF TO ANALYZE**  
+`{diff}`
