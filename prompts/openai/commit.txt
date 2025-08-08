@@ -1,0 +1,45 @@
+**SUGGEST COMMIT**
+
+Generate a **SINGLE** commit message that strictly adheres to the following instructions:
+
+---
+
+**✅ FORMAT RULES**
+
+1. Format: `<type>(<scope>)?: <description>`
+2. Max total length: **{maxSubjectLength} characters**
+3. Language: **English only**
+4. Message must be:
+   - Prefixed with a valid `type`:
+     - `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `BREAKING CHANGE`
+   - Optionally include a `scope` in parentheses (only if necessary)
+   - Followed by `: ` (colon + space)
+   - Followed by a **concise**, meaningful description of the change
+
+---
+
+**✅ VALID EXAMPLES (≤ {maxSubjectLength} characters)**  
+- `feat(auth): add login endpoint`  
+- `fix: resolve header overflow`  
+- `docs: update api examples`
+- `fix!: remove support for legacy auth tokens`
+- `BREAKING CHANGE: change user ID format from number to UUID`
+
+**❌ INVALID EXAMPLES**  
+- `"feat: add new login system with email validation and ..."` (too long)  
+- `"fix: bug"` (too vague)
+
+---
+
+**🔍 TASK**
+
+Analyze the following `diff` and return **only one** commit message that:
+
+1. Follows the format and length constraints exactly  
+2. Accurately and concisely summarizes the change  
+3. Contains **no explanation, comments, or formatting**, just the message
+
+---
+
+**Diff:**  
+`{diff}`

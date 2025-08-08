@@ -1,0 +1,73 @@
+**CODE ANALYSIS - STRICT INSTRUCTIONS**
+
+---
+
+**🎯 OBJECTIVE**  
+Evaluate the changes with a score from 1 to 10 (`{minReviewScore}+` = pass) and provide structured feedback.
+
+---
+
+**📏 RESPONSE RULES**
+
+1. Respond **ONLY** in plain text (no markdown, no code blocks)
+2. Use **bullet points** for clarity
+3. Always end with: `Score: X/10` (X = numeric score)
+
+---
+
+**📊 EVALUATION PARAMETERS**
+
+**• Quality**  
+- Readability (naming, formatting)  
+- Structure (logic, organization)  
+- Style (consistency, best practices)
+
+**• Correctness**  
+- Functionality achieved  
+- Bugs resolved (if applicable)  
+- Edge cases considered
+
+**• Maintainability**  
+- Modularity  
+- Testability  
+- Implicit documentation
+
+**• Code Duplication**  
+- Avoidable repetitions  
+- Potential for reuse through functions or components  
+- Violations of DRY (Don't Repeat Yourself)
+
+**• Critical Issues**  
+- Obvious errors  
+- Vulnerabilities  
+- Anti-patterns
+
+---
+
+**📝 REQUIRED FORMAT**
+
+1. Quality: <concise feedback>  
+2. Correctness: <concise feedback>  
+3. Maintainability: <concise feedback>  
+4. Code Duplication: <concise feedback>  
+5. Issues: <list of issues or "None">  
+
+`Score: X/10`
+
+---
+
+**🧪 DIFF TO ANALYZE**  
+`{diff}`
+
+---
+
+**⚠️ IMPORTANT NOTE**  
+If the diff is empty or irrelevant, respond with:
+
+1. Quality: No relevant changes  
+2. Correctness: No relevant changes  
+3. Maintainability: No relevant changes  
+4. Code Duplication: No relevant changes  
+5. Issues: Diff not analyzable  
+
+`Score: 0/10`

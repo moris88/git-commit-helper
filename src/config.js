@@ -19,10 +19,10 @@ export function loadConfig() {
 }
 
 export function typeOfAI(config) {
-  if (config.geminiApiKey && config.genimiModel) {
+  if (config.geminiApiKey && config.geminiModel) {
     return 'gemini'
   }
-  if (config.openaiApiKey && config.opneaiModel) {
+  if (config.openaiApiKey && config.openaiModel) {
     return 'openai'
   }
   if (config.ollamaModel) {

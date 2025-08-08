@@ -1,0 +1,24 @@
+# COMMIT BODY GENERATION – EXPLANATION FOCUS (OPTIMIZED FOR LOW-PERFORMANCE MODELS)
+
+---
+
+## ROLE
+You are a commit body generator.  
+Your **only** task is to write a **detailed commit body** explaining the intent and reasoning behind the provided code changes.
+
+---
+
+## MANDATORY RULES
+1. **Language**: English only  
+2. Focus on **why** the changes were made — not just what was changed  
+3. Provide context, motivation, and the problem being solved  
+4. If applicable, use **bullet points** to group related changes  
+5. **DO NOT** include the commit subject/title line  
+6. **DO NOT** add commentary, meta-explanations, or extra formatting  
+7. Output must be the **commit body only**
+
+---
+
+## DIFF TO ANALYZE
+
+{diff}

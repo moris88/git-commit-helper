@@ -19,21 +19,7 @@ import {
   checkoutBranch,
   hasCommitsToPush,
 } from './git.js'
-import {
-  askGeminiForReview,
-  askGeminiForGeneratedCommitMessage,
-  askGeminiForCommitBody,
-} from './gemini.js'
-import {
-  askOpenaiForReview,
-  askOpenaiForGeneratedCommitMessage,
-  askOpenaiForCommitBody,
-} from './openai.js'
-import {
-  askOllamaForReview,
-  askOllamaForGeneratedCommitMessage,
-  askOllamaForCommitBody,
-} from './ollama.js'
+import { getAIProvider } from './ai-provider.js'
 import {
   printTitle,
   selectFilesToStage,
@@ -50,6 +36,7 @@ import {
   selectBranchToCheckout,
 } from './ui.js'
 import { t } from './i18n.js'
+import { translateIfNeeded } from './translator.js'
 
 // Helper function to initialize configuration
 async function initialize(printHeader = true) {
@@ -127,21 +114,17 @@ async function handleFileStaging(config, autoConfirm) {
 // Helper function for handling the commit process
 async function handleCommit(config, autoConfirm) {
   printMessage(t('generatingMessage'), 'blue')
-  let commitMessage = false
-  const ai = typeOfAI(config)
-  switch (ai) {
-    case 'ollama':
-      commitMessage = await askOllamaForGeneratedCommitMessage(config)
-      break
-    case 'openai':
-      commitMessage = await askOpenaiForGeneratedCommitMessage(config)
-      break
-    case 'gemini':
-      commitMessage = await askGeminiForGeneratedCommitMessage(config)
-      break
+  const aiProvider = getAIProvider(config)
+  if (!aiProvider) {
+    printError(t('aiProviderNotFound'))
+    process.exit(1)
   }
+
+  let commitMessage = await aiProvider.askForGeneratedCommitMessage(config)
+  commitMessage = await translateIfNeeded(commitMessage, config)
+
   if (!commitMessage) {
-    printMessage(t('commitMessageUnavailable') + ' - ' + ai)
+    printMessage(t('commitMessageUnavailable') + ' - ' + typeOfAI(config))
     return false
   }
   commitMessage = commitMessage.replace(/```/g, '').replace(/\n/g, '')
@@ -156,18 +139,8 @@ async function handleCommit(config, autoConfirm) {
   let commitBody = ''
   if (await confirmGenerateBody(autoConfirm)) {
     printMessage(t('generatingBody'), 'blue')
-    commitBody = await askGeminiForCommitBody(config)
-    switch (ai) {
-      case 'ollama':
-        commitBody = await askOllamaForCommitBody(config)
-        break
-      case 'openai':
-        commitBody = await askOpenaiForCommitBody(config)
-        break
-      case 'gemini':
-        commitBody = await askGeminiForCommitBody(config)
-        break
-    }
+    commitBody = await aiProvider.askForCommitBody(config)
+    commitBody = await translateIfNeeded(commitBody, config)
   }
 
   const finalCommitMessage =
@@ -197,19 +170,14 @@ async function runReviewLogic(autoConfirm) {
   if (!stagedFiles) return
 
   printMessage(`${t('codeAnalysis')}`, 'blue')
-  let review = FinalizationRegistry
-  const ai = typeOfAI(config)
-  switch (ai) {
-    case 'ollama':
-      review = await askOllamaForReview(config)
-      break
-    case 'openai':
-      review = await askOpenaiForReview(config)
-      break
-    case 'gemini':
-      review = await askGeminiForReview(config)
-      break
+  const aiProvider = getAIProvider(config)
+  if (!aiProvider) {
+    printError(t('aiProviderNotFound'))
+    process.exit(1)
   }
+  let review = await aiProvider.askForReview(config)
+  review = await translateIfNeeded(review, config)
+
   if (!review) {
     printMessage(t('reviewUnavailable'))
     process.exit(1)
@@ -298,6 +266,12 @@ async function runCheckoutLogic() {
 // Logic for the full workflow (no command)
 async function runFullWorkflow(autoConfirm) {
   const config = await initialize()
+  const aiProvider = getAIProvider(config)
+
+  if (!aiProvider) {
+    printError(t('aiProviderNotFound'))
+    process.exit(1)
+  }
 
   await checkBranchAndMaybeCreateNew(config, autoConfirm)
 
@@ -309,31 +283,22 @@ async function runFullWorkflow(autoConfirm) {
     for (const command of config.preCommitCommands) {
       try {
         printMessage(`  - ${command}`, 'yellow')
-        execSync(command, { stdio: 'inherit' })
+        execSync(command, { stdio: 'pipe' }) // Suppress output
+        printMessage(t('preCommitSuccess', { command }), 'green')
       } catch (error) {
         printError(t('preCommitFailed', { command }))
-        printError(error.message)
+        // Continue to the next command
       }
     }
   }
 
   if (config.aiReviewEnabled !== false) {
-    if (await confirmReview(autoConfirm)) {
+    const ai = typeOfAI(config)
+    if (await confirmReview(ai, autoConfirm)) {
       printMessage(`${t('codeAnalysis')}`, 'blue')
-      let review = false
-      const ai = typeOfAI(config)
-      switch (ai) {
-        case 'ollama':
-          review = await askOllamaForReview(config)
-          break
-        case 'openai':
-          review = await askOpenaiForReview(config)
-          break
-        case 'gemini':
-          review = await askGeminiForReview(config)
-          break
-      }
+      let review = await aiProvider.askForReview(config)
       if (review) {
+        review = await translateIfNeeded(review, config)
         printMessage(`\n${t('reviewYourCode')}\n${review}`, 'blue')
         const scoreRegex = /Score:\s*(\d+)\/10/i
         const scoreMatch = scoreRegex.exec(review)

@@ -1,0 +1,25 @@
+**GIT BRANCH NAME GENERATION**
+
+---
+
+**🎯 OBJECTIVE**  
+Generate a concise and descriptive Git branch name based on the following diff.
+
+---
+
+**📌 REQUIREMENTS**
+
+- Language: **English only**  
+- Format: **kebab-case** (e.g., `feat/new-login-flow`)  
+- Max length: **40 characters**  
+- Must clearly describe the changes reflected in the diff
+
+---
+
+**⚠️ OUTPUT**  
+Return **ONLY** the branch name. No extra text or formatting.
+
+---
+
+**📎 DIFF TO ANALYZE**  
+`{diff}`

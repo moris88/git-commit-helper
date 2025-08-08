@@ -1,20 +1,14 @@
 import OpenAI from 'openai'
 import chalk from 'chalk'
-import fs from 'fs'
-import { fileURLToPath } from 'url'
-import { resolve, dirname } from 'path'
 import { getDiff } from './git.js'
 import { t } from './i18n.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+import { getPrompt as getGenericPrompt } from './prompt-loader.js'
 
 function getPrompt(name) {
-  const promptPath = resolve(__dirname, `../prompts/${name}.txt`)
-  return fs.readFileSync(promptPath, 'utf-8')
+  return getGenericPrompt('openai', name)
 }
 
-async function callOpenai(prompt, config) {
+export async function callOpenai(prompt, config) {
   try {
     const APPROX_CHARS_PER_TOKEN = 4
     const MAX_INPUT_TOKENS = 900_000 // lasciamo margine all'output
