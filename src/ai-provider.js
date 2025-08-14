@@ -1,22 +1,22 @@
+import { typeOfAI } from './config.js'
 import {
-  askGeminiForReview,
-  askGeminiForGeneratedCommitMessage,
-  askGeminiForCommitBody,
   askGeminiForBranchName,
+  askGeminiForCommitBody,
+  askGeminiForGeneratedCommitMessage,
+  askGeminiForReview,
 } from './gemini.js'
 import {
-  askOpenaiForReview,
-  askOpenaiForGeneratedCommitMessage,
-  askOpenaiForCommitBody,
-  askOpenaiForBranchName,
-} from './openai.js'
-import {
-  askOllamaForReview,
-  askOllamaForGeneratedCommitMessage,
-  askOllamaForCommitBody,
   askOllamaForBranchName,
+  askOllamaForCommitBody,
+  askOllamaForGeneratedCommitMessage,
+  askOllamaForReview,
 } from './ollama.js'
-import { typeOfAI } from './config.js'
+import {
+  askOpenaiForBranchName,
+  askOpenaiForCommitBody,
+  askOpenaiForGeneratedCommitMessage,
+  askOpenaiForReview,
+} from './openai.js'
 
 export function getAIProvider(config) {
   const ai = typeOfAI(config)

@@ -1,6 +1,7 @@
-import { resolve } from 'path'
 import { existsSync, readFileSync } from 'fs'
 import { homedir } from 'os'
+import { resolve } from 'path'
+
 import { t } from './i18n.js'
 
 // Funzione per caricare la configurazione

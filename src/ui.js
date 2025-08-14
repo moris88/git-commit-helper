@@ -1,8 +1,9 @@
-import inquirer from 'inquirer'
 import chalk from 'chalk'
 import figlet from 'figlet'
-import { t } from './i18n.js'
+import inquirer from 'inquirer'
+
 import { COMMIT_TYPES } from './config.js'
+import { t } from './i18n.js'
 
 export function printTitle() {
   const asciiTitle = figlet.textSync(t('mainTitle'), {
@@ -67,12 +68,12 @@ export function validateMessage(msg, config) {
 
 export async function selectFilesToStage(modifiedFiles, autoConfirm = false) {
   if (autoConfirm) {
-    console.log(chalk.blue(t('filesSelected', { count: modifiedFiles.length })));
-    return modifiedFiles;
+    console.log(chalk.blue(t('filesSelected', { count: modifiedFiles.length })))
+    return modifiedFiles
   }
   if (modifiedFiles.length === 1) {
-    console.log(chalk.blue(t('fileModified', { file: modifiedFiles[0] })));
-    return modifiedFiles;
+    console.log(chalk.blue(t('fileModified', { file: modifiedFiles[0] })))
+    return modifiedFiles
   }
 
   console.log(
@@ -81,7 +82,7 @@ export async function selectFilesToStage(modifiedFiles, autoConfirm = false) {
         count: modifiedFiles.length,
       })
     )
-  );
+  )
 
   const { selectedFiles } = await inquirer.prompt([
     {
@@ -93,9 +94,9 @@ export async function selectFilesToStage(modifiedFiles, autoConfirm = false) {
         checked: true,
       })),
     },
-  ]);
+  ])
 
-  return selectedFiles;
+  return selectedFiles
 }
 
 export async function confirmReview(aiProviderName, autoConfirm = false) {
@@ -215,36 +216,36 @@ export function printError(msg) {
 }
 
 export async function selectBranchForRebase(branches) {
-    const { branch } = await inquirer.prompt([
-        {
-            type: 'list',
-            name: 'branch',
-            message: t('selectBranchForRebase'),
-            choices: branches,
-        },
-    ]);
-    return branch;
+  const { branch } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'branch',
+      message: t('selectBranchForRebase'),
+      choices: branches,
+    },
+  ])
+  return branch
 }
 
 export async function selectBranchToCheckout(branches) {
-    const { branch } = await inquirer.prompt([
-        {
-            type: 'list',
-            name: 'branch',
-            message: t('selectBranchToCheckout'),
-            choices: branches,
-        },
-    ]);
-    return branch;
+  const { branch } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'branch',
+      message: t('selectBranchToCheckout'),
+      choices: branches,
+    },
+  ])
+  return branch
 }
 
 export async function confirmRunPreCommit(commands, autoConfirm = false) {
-  if (autoConfirm) return commands;
+  if (autoConfirm) return commands
   const { selectedCommands } = await inquirer.prompt({
     type: 'checkbox',
     name: 'selectedCommands',
     message: t('askForPreCommit'),
-    choices: commands.map(cmd => ({ name: cmd, checked: true })),
-  });
-  return selectedCommands;
+    choices: commands.map((cmd) => ({ name: cmd, checked: true })),
+  })
+  return selectedCommands
 }
