@@ -25,9 +25,6 @@ jobs:
       
       - name: Run Eslint
         run: yarn lint
-      
-      - name: Run CLI smoke test
-        run: yarn dev --help
 
   test-cli:
     needs: eslint
