@@ -1,4 +1,4 @@
-name: Test CLI before deploy
+name: Test CLI + eslint
 
 on:
   push:
@@ -9,7 +9,28 @@ on:
       - '!main'
 
 jobs:
+  eslint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: yarn install
+      
+      - name: Run Eslint
+        run: yarn lint
+      
+      - name: Run CLI smoke test
+        run: yarn dev --help
+
   test-cli:
+    needs: eslint
     runs-on: ubuntu-latest
 
     steps:
@@ -22,9 +43,6 @@ jobs:
 
       - name: Install dependencies
         run: yarn install
-
-      - name: Run Eslint
-        run: yarn lint
 
       - name: Run CLI smoke test
         run: yarn dev --help
