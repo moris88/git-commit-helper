@@ -76,6 +76,7 @@ export async function askGeminiForCommitBody(config) {
 export async function askGeminiForBranchName(config) {
   const diff = getDiff(false) // Get unstaged changes
   if (!diff) {
+    console.log('No changes detected for branch name suggestion.')
     return null
   }
   const branchPromptTemplate = getPrompt('branch')
