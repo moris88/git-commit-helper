@@ -32,7 +32,11 @@ export async function callOllama(prompt, config) {
         )
         return null
       })
-    return result?.response ?? null
+    const response = result?.response ?? null
+    if (!response) {
+      return null
+    }
+    return response.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
   } catch (error) {
     console.error(chalk.yellow(t('reviewError')), error.message)
     return null

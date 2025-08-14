@@ -176,7 +176,7 @@ export function getLatestLogs() {
 
 export function getBranchGraph() {
   try {
-    return execSync('git log --all --decorate --oneline --graph').toString();
+    return execSync('git log --all --decorate --oneline --graph --color').toString();
   } catch (error) {
     console.error(chalk.red('Error fetching git graph:'), error.message);
     return null;

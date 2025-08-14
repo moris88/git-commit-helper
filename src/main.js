@@ -34,6 +34,7 @@ import {
   confirmGenerateBody,
   selectBranchForRebase,
   selectBranchToCheckout,
+  confirmRunPreCommit,
 } from './ui.js'
 import { t } from './i18n.js'
 import { translateIfNeeded } from './translator.js'
@@ -279,15 +280,22 @@ async function runFullWorkflow(autoConfirm) {
   if (!stagedFiles) process.exit(0)
 
   if (config.preCommitCommands && config.preCommitCommands.length > 0) {
-    printMessage(t('runningPreCommit'), 'blue')
-    for (const command of config.preCommitCommands) {
-      try {
-        printMessage(`  - ${command}`, 'yellow')
-        execSync(command, { stdio: 'pipe' }) // Suppress output
-        printMessage(t('preCommitSuccess', { command }), 'green')
-      } catch (error) {
-        printError(t('preCommitFailed', { command }))
-        // Continue to the next command
+    const selectedCommands = await confirmRunPreCommit(
+      config.preCommitCommands,
+      autoConfirm
+    )
+
+    if (selectedCommands && selectedCommands.length > 0) {
+      printMessage(t('runningPreCommit'), 'blue')
+      for (const command of selectedCommands) {
+        try {
+          printMessage(`  - ${command}`, 'yellow')
+          execSync(command, { stdio: 'pipe' }) // Suppress output
+          printMessage(t('preCommitSuccess', { command }), 'green')
+        } catch (error) {
+          printError(t('preCommitFailed', { command }))
+          // Continue to the next command
+        }
       }
     }
   }
