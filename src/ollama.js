@@ -1,5 +1,6 @@
 import chalk from 'chalk'
 import ollama from 'ollama'
+
 import { getDiff } from './git.js'
 import { t } from './i18n.js'
 import { getPrompt as getGenericPrompt } from './prompt-loader.js'
@@ -11,7 +12,7 @@ function getPrompt(name) {
 export async function callOllama(prompt, config) {
   try {
     const APPROX_CHARS_PER_TOKEN = 4
-    const MAX_INPUT_TOKENS = 900_000 // lasciamo margine all'output
+    const MAX_INPUT_TOKENS = 900000 // lasciamo margine all'output
     const maxChars = MAX_INPUT_TOKENS * APPROX_CHARS_PER_TOKEN // ≈ 3.6M caratteri
 
     const sliced = prompt.substring(0, maxChars)
@@ -20,10 +21,10 @@ export async function callOllama(prompt, config) {
     }
     const result = await ollama
       .generate({
-          model: config.ollamaModel || 'codellama',
-          prompt: sliced,
-          stream: false,
-        })
+        model: config.ollamaModel || 'codellama',
+        prompt: sliced,
+        stream: false,
+      })
       .catch((error) => {
         console.error(error)
         console.error(

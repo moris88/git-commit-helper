@@ -1,12 +1,12 @@
-import { execSync } from 'child_process'
 import chalk from 'chalk'
-import inquirer from 'inquirer'
+import { execSync } from 'child_process'
 import fs from 'fs'
-import path from 'path'
+import inquirer from 'inquirer'
 import os from 'os'
-import { t } from './i18n.js'
-import { askGeminiForBranchName } from './gemini.js'
+import path from 'path'
 
+import { askGeminiForBranchName } from './gemini.js'
+import { t } from './i18n.js'
 
 export function getDiff(cached = true) {
   try {
@@ -22,20 +22,29 @@ export function getModifiedFiles() {
   try {
     // Unstage all files to get a clean slate, ignoring errors if nothing is staged
     try {
-      execSync('git restore --staged .');
+      execSync('git restore --staged .')
     } catch (error) {
       // Ignore errors, as this command can fail if the staging area is empty
     }
 
-    const deleted = execSync('git ls-files --deleted').toString().trim().split('\n');
-    const modified = execSync('git ls-files --modified').toString().trim().split('\n');
-    const others = execSync('git ls-files --others --exclude-standard').toString().trim().split('\n');
-    
-    const allFiles = [...deleted, ...modified, ...others].filter(Boolean);
-    return [...new Set(allFiles)]; // Remove duplicates
+    const deleted = execSync('git ls-files --deleted')
+      .toString()
+      .trim()
+      .split('\n')
+    const modified = execSync('git ls-files --modified')
+      .toString()
+      .trim()
+      .split('\n')
+    const others = execSync('git ls-files --others --exclude-standard')
+      .toString()
+      .trim()
+      .split('\n')
+
+    const allFiles = [...deleted, ...modified, ...others].filter(Boolean)
+    return [...new Set(allFiles)] // Remove duplicates
   } catch (error) {
     console.error(chalk.red(t('getDiffError')), error.message)
-    return [];
+    return []
   }
 }
 
@@ -53,12 +62,12 @@ export function getDiffForFiles(files) {
 }
 
 export function getLocalBranches() {
-    try {
-        return execSync('git branch').toString()
-    } catch (error) {
-        console.error(chalk.red('Error fetching local branches:'), error.message);
-        return null;
-    }
+  try {
+    return execSync('git branch').toString()
+  } catch (error) {
+    console.error(chalk.red('Error fetching local branches:'), error.message)
+    return null
+  }
 }
 
 export function getCurrentBranch() {
@@ -70,17 +79,20 @@ export function getCurrentBranch() {
   }
 }
 
-export async function checkBranchAndMaybeCreateNew(config, autoConfirm = false) {
+export async function checkBranchAndMaybeCreateNew(
+  config,
+  autoConfirm = false
+) {
   const forbiddenBranches = ['main', 'master', 'dev']
   const currentBranch = getCurrentBranch()
 
   if (forbiddenBranches.includes(currentBranch)) {
     console.log(chalk.red(t('protectedBranch', { branch: currentBranch })))
 
-    const branches = getLocalBranches();
+    const branches = getLocalBranches()
     if (branches) {
-        console.log(chalk.blue('Local branches:'));
-        console.log(branches);
+      console.log(chalk.blue('Local branches:'))
+      console.log(branches)
     }
 
     const suggestedBranchName = await askGeminiForBranchName(config)
@@ -111,8 +123,7 @@ export async function checkBranchAndMaybeCreateNew(config, autoConfirm = false) 
         name: 'newBranchName',
         message: t('newBranchName'),
         default: suggestedBranchName,
-        validate: (input) =>
-          /^[\w\/-]+$/.test(input) || t('invalidBranchName'),
+        validate: (input) => /^[\w/-]+$/.test(input) || t('invalidBranchName'),
       },
     ])
 
@@ -167,79 +178,83 @@ export function push(branch) {
 
 export function getLatestLogs() {
   try {
-    return execSync('git log -n 5 --pretty=format:"%h - %an, %ar : %s"').toString();
+    return execSync(
+      'git log -n 5 --pretty=format:"%h - %an, %ar : %s"'
+    ).toString()
   } catch (error) {
-    console.error(chalk.red('Error fetching git logs:'), error.message);
-    return null;
+    console.error(chalk.red('Error fetching git logs:'), error.message)
+    return null
   }
 }
 
 export function getBranchGraph() {
   try {
-    return execSync('git log --all --decorate --oneline --graph --color').toString();
+    return execSync(
+      'git log --all --decorate --oneline --graph --color'
+    ).toString()
   } catch (error) {
-    console.error(chalk.red('Error fetching git graph:'), error.message);
-    return null;
+    console.error(chalk.red('Error fetching git graph:'), error.message)
+    return null
   }
 }
 
 export function rebase(branch) {
   try {
-    execSync(`git rebase ${branch}`, { stdio: 'inherit' });
-    console.log(chalk.green(t('rebaseSuccess', { branch })));
+    execSync(`git rebase ${branch}`, { stdio: 'inherit' })
+    console.log(chalk.green(t('rebaseSuccess', { branch })))
   } catch (error) {
-    console.error(chalk.red(t('rebaseFailed', { branch })), error.message);
-    process.exit(1);
+    console.error(chalk.red(t('rebaseFailed', { branch })), error.message)
+    process.exit(1)
   }
 }
 
 export function isLastCommitPushed() {
-    try {
-        const localHead = execSync('git rev-parse HEAD').toString().trim();
-        const remoteHead = execSync('git rev-parse @{u}').toString().trim();
-        return localHead === remoteHead;
-    } catch (error) {
-        // This will fail if the upstream branch is not set, which means the commit can't have been pushed.
-        return false;
-    }
+  try {
+    const localHead = execSync('git rev-parse HEAD').toString().trim()
+    const remoteHead = execSync('git rev-parse @{u}').toString().trim()
+    return localHead === remoteHead
+  } catch (error) {
+    // This will fail if the upstream branch is not set, which means the commit can't have been pushed.
+    return false
+  }
 }
 
 export function undoLastCommit() {
-    try {
-        execSync('git reset HEAD~1', { stdio: 'inherit' });
-        console.log(chalk.green(t('undoSuccess')));
-    } catch (error) {
-        console.error(chalk.red(t('undoFailed')), error.message);
-        process.exit(1);
-    }
+  try {
+    execSync('git reset HEAD~1', { stdio: 'inherit' })
+    console.log(chalk.green(t('undoSuccess')))
+  } catch (error) {
+    console.error(chalk.red(t('undoFailed')), error.message)
+    process.exit(1)
+  }
 }
 
 export function checkoutBranch(branch) {
-    try {
-        execSync(`git checkout ${branch}`, { stdio: 'inherit' });
-        console.log(chalk.green(t('checkoutSuccess', { branch })));
-    } catch (error) {
-        console.error(chalk.red(t('checkoutFailed', { branch })), error.message);
-        process.exit(1);
-    }
+  try {
+    execSync(`git checkout ${branch}`, { stdio: 'inherit' })
+    console.log(chalk.green(t('checkoutSuccess', { branch })))
+  } catch (error) {
+    console.error(chalk.red(t('checkoutFailed', { branch })), error.message)
+    process.exit(1)
+  }
 }
 
 export function hasCommitsToPush() {
   try {
     const branch = execSync('git rev-parse --abbrev-ref HEAD', {
       encoding: 'utf-8',
-    }).trim();
+    }).trim()
 
     const count = parseInt(
       execSync(`git rev-list --count origin/${branch}..${branch}`, {
         encoding: 'utf-8',
       }).trim(),
       10
-    );
+    )
 
-    return count > 0;
+    return count > 0
   } catch (error) {
-    console.error(chalk.red(t('pushError', { branch })), error.message)
-    return false;
+    console.error(chalk.red(t('pushError')), error.message)
+    return false
   }
 }

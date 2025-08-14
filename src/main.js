@@ -1,43 +1,45 @@
+import chalk from 'chalk'
+import { execSync } from 'child_process'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import { execSync } from 'child_process'
+
+import { getAIProvider } from './ai-provider.js'
 import { loadConfig, typeOfAI } from './config.js'
 import {
-  getModifiedFiles,
   checkBranchAndMaybeCreateNew,
-  stageFiles,
+  checkoutBranch,
   commit,
-  push,
+  getBranchGraph,
   getCurrentBranch,
   getDiffForFiles,
   getLatestLogs,
-  getBranchGraph,
-  rebase,
   getLocalBranches,
-  isLastCommitPushed,
-  undoLastCommit,
-  checkoutBranch,
+  getModifiedFiles,
   hasCommitsToPush,
+  isLastCommitPushed,
+  push,
+  rebase,
+  stageFiles,
+  undoLastCommit,
 } from './git.js'
-import { getAIProvider } from './ai-provider.js'
-import {
-  printTitle,
-  selectFilesToStage,
-  confirmReview,
-  printMessage,
-  printError,
-  confirmProceed,
-  getEditedCommitMessage,
-  validateMessage,
-  confirmCommit,
-  confirmPush,
-  confirmGenerateBody,
-  selectBranchForRebase,
-  selectBranchToCheckout,
-  confirmRunPreCommit,
-} from './ui.js'
 import { t } from './i18n.js'
 import { translateIfNeeded } from './translator.js'
+import {
+  confirmCommit,
+  confirmGenerateBody,
+  confirmProceed,
+  confirmPush,
+  confirmReview,
+  confirmRunPreCommit,
+  getEditedCommitMessage,
+  printError,
+  printMessage,
+  printTitle,
+  selectBranchForRebase,
+  selectBranchToCheckout,
+  selectFilesToStage,
+  validateMessage,
+} from './ui.js'
 
 // Helper function to initialize configuration
 async function initialize(printHeader = true) {

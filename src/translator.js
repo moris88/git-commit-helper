@@ -1,8 +1,8 @@
-import { getLocale } from './i18n.js'
 import { typeOfAI } from './config.js'
 import { callGemini } from './gemini.js'
-import { callOpenai } from './openai.js'
+import { getLocale } from './i18n.js'
 import { callOllama } from './ollama.js'
+import { callOpenai } from './openai.js'
 import { getPrompt } from './prompt-loader.js'
 
 async function translate(text, config) {

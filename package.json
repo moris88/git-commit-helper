@@ -17,7 +17,10 @@
     "init": "node ./bin/init-config.cjs",
     "setup": "node ./bin/setup.cjs",
     "dev": "node ./src/index.js",
-    "format": "prettier --write ."
+    "lint": "eslint src --max-warnings=10",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "npx prettier src --check",
+    "format:fix": "npm run prettier -- --write"
   },
   "dependencies": {
     "@google/genai": "^1.8.0",
@@ -32,7 +35,13 @@
     "yargs": "^18.0.0"
   },
   "devDependencies": {
-    "prettier": "^3.5.3"
+    "prettier": "3.6.2",
+    "@eslint/js": "^9.30.1",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^16.3.0"
   },
   "keywords": [
     "git",
