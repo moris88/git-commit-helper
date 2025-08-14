@@ -97,5 +97,6 @@
   "checkoutFailed": "❌ Impossibile spostarsi sul branch '{branch}'.",
   "nothingToPush": "❌ Non ci sono commit da pushare.",
   "pushCancelled": "❌ Push annullato.",
-  "pushError": "❌ Errore durante il push: "
+  "pushError": "❌ Errore durante il push: ",
+  "askForPreCommit": "Seleziona i comandi di pre-commit da eseguire:"
 }

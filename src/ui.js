@@ -237,3 +237,14 @@ export async function selectBranchToCheckout(branches) {
     ]);
     return branch;
 }
+
+export async function confirmRunPreCommit(commands, autoConfirm = false) {
+  if (autoConfirm) return commands;
+  const { selectedCommands } = await inquirer.prompt({
+    type: 'checkbox',
+    name: 'selectedCommands',
+    message: t('askForPreCommit'),
+    choices: commands.map(cmd => ({ name: cmd, checked: true })),
+  });
+  return selectedCommands;
+}
