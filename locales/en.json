@@ -52,7 +52,7 @@
   "filesAddedSuccess": "✔️​ Files added successfully!",
   "runningPreCommit": "Running pre-commit commands...",
   "preCommitSuccess": "✔️ Command '{command}' executed successfully.",
-  "preCommitFailed": "⚠️ Command '{command}' failed. Continuing...",
+  "preCommitFailed": "⚠️ Command '{command}' failed. Printing error and stopping...",
   "askForReview": "Do you want a code review before proceeding?",
   "withProvider": "with",
   "reviewUnavailable": "⚠️​ Unable to get a review",

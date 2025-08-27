@@ -292,11 +292,15 @@ async function runFullWorkflow(autoConfirm) {
       for (const command of selectedCommands) {
         try {
           printMessage(`  - ${command}`, 'yellow')
-          execSync(command, { stdio: 'pipe' }) // Suppress output
+          execSync(command, { stdio: 'pipe' })
           printMessage(t('preCommitSuccess', { command }), 'green')
         } catch (error) {
-          printError(t('preCommitFailed', { command }))
-          // Continue to the next command
+          printError(
+            `${t('preCommitFailed', {
+              command,
+            })}\n${error.stdout}\n${error.stderr}`
+          )
+          process.exit(1)
         }
       }
     }
